@@ -44,9 +44,10 @@ end
 
 Algolia.init application_id: ENV['ALGOLIA_APPLICATION_ID'], api_key: ENV['ALGOLIA_API_KEY']
 index = Algolia::Index.new('magento-connect')
+index.clear
 index.set_settings({
   attributesToIndex: ['unordered(title)', 'unordered(short_description)'],
-  customRanking: ['desc(popularity)', 'desc(rating)'],
+  customRanking: ['desc(rating_i)', 'desc(popularity)'],
   attributesForFaceting: ['price_range', 'rating_i']
 })
 index.add_objects objects
