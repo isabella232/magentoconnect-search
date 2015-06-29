@@ -99,6 +99,10 @@ html(lang="en" ng-app="myApp")
                 a.btn.btn-info(href="http://www.magentocommerce.com/magento-connect/search-algolia-instant-search.html" target="_blank")
                   i.fa.fa-download(title="Popularity")
                   |  Install now
+
+        .col-lg-12.no-results(ng-if="content.nbHits === 0")
+          | No results are matching "<strong>{{ q }}</strong>".
+
         .col-md-5.col-sm-8(ng-repeat="odd in ::[true, false]" ng-class="{ 'hidden-xs hidden-sm' : !odd }")
           .extension-card(ng-repeat="hit in content.hits track by hit.objectID" ng-class="{ 'hidden-md hidden-lg' : ($odd == odd), 'highlighted' : hit.concatenated }")
             .media.extension-card-top
