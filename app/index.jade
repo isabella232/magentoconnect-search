@@ -74,9 +74,9 @@ html(lang="en" ng-app="myApp")
           .facet
             h3 Rating
             table.table.facet-rating
-              tr(ng-repeat="(value, count) in content.ratingFacet" ng-class="{ refined: (helper.isRefined(facet.name, value)) }")
+              tr(ng-repeat="(value, count) in content.ratingFacet" ng-class="{ refined: (helper.isRefined('rating_i', value)) }")
                 td
-                  a(href="#" ng-click="count ? toggleRefine($event, facet.name, value) : 0", ng-disabled="!count")
+                  a(href="#" ng-click="count ? toggleRefine($event, 'rating_i', value) : 0", ng-disabled="!count")
                     i.fa.fa-star(ng-repeat="i in range(+value) track by $index" ng-class="{ star: count, 'text-muted': !count }")
                     i.fa.fa-star-o(ng-repeat="i in range(5 - value) track by $index" ng-class="{ star: count, 'text-muted': !count }")
                     | &nbsp;
