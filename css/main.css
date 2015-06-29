@@ -7695,7 +7695,9 @@ header {
     .extensions .extension-card .extension-author {
       text-align: right; }
     .extensions .extension-card .extension-price {
-      float: right; }
+      float: right;
+      font-size: 1em;
+      font-weight: normal; }
     .extensions .extension-card .extension-tags .extension-tag {
       margin-right: 0.2em;
       color: #23282d;

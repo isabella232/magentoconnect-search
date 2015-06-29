@@ -97,7 +97,7 @@ var SearchCtrl = function($scope, $sce, $timeout, $location, algolia) {
     blurring && $timeout.cancel(blurring);
     blurring = $timeout(function() {
       unblur(delayedContent);
-    }, 200);
+    }, 50);
 
     $scope.helper.setQuery(q).search();
   });
@@ -164,7 +164,7 @@ app.filter('fromNow', ['moment', moment.fromNow]);
 
 app.directive('scrolled', ['$window', '$document', scrolled]);
 
-}).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/fake_afefa121.js","/")
+}).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/fake_ee139468.js","/")
 },{"./controllers/SearchCtrl":1,"./directives/scrolled":2,"./filters/facet":4,"./filters/moment":5,"algoliasearch/src/browser/builds/algoliasearch.angular":191,"angular":202,"angular-moment":197,"angular-sanitize":200,"buffer":203,"oMfpAn":208}],4:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 "use strict";
