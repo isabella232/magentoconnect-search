@@ -6,7 +6,7 @@ var algoliasearchHelper = require('algoliasearch-helper');
 var forEach = require('lodash.foreach');
 
 var SearchCtrl = function($scope, $sce, $timeout, $location, algolia) {
-  $scope.client = algolia.Client('sylvain', '04aa64d1f5fd9b3fdb54769cfa5f3a83');
+  $scope.client = algolia.Client('latency', 'db2af085e1f7dc80f93178182b76ddca');
   $scope.helper = algoliasearchHelper($scope.client, 'magento-connect', {
     facets: ['price_range'],
     disjunctiveFacets: ['rating_i'],
@@ -173,7 +173,7 @@ app.filter('fromNow', ['moment', moment.fromNow]);
 
 app.directive('scrolled', ['$window', '$document', scrolled]);
 
-}).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/fake_1b8b109.js","/")
+}).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/fake_8959c5c5.js","/")
 },{"./controllers/SearchCtrl":1,"./directives/scrolled":2,"./filters/facet":4,"./filters/moment":5,"algoliasearch/src/browser/builds/algoliasearch.angular":191,"angular":202,"angular-moment":197,"angular-sanitize":200,"buffer":203,"oMfpAn":208}],4:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 "use strict";
