@@ -1,60 +1,55 @@
 #! /usr/bin/env ruby
 
 require 'rubygems'
-require 'algoliasearch'
 require 'open-uri'
-require 'tempfile'
+require 'nokogiri'
+require 'algoliasearch'
 
-puts "Initializing..."
-
-Algolia.init application_id: ENV['APPLICATION_ID'], api_key: ENV['API_KEY']
-index = Algolia::Index.new("#{ENV['INDEX_PREFIX']}plugins_tmp")
-index.set_settings({
-  attributesToIndex: ['unordered(name)', 'unordered(tags)', 'author', 'unordered(short_description)'],
-  customRanking: ['desc(downloaded)'],
-  attributesForFaceting: ['author', 'tags', 'rating']
-})
-
-puts "Listing..."
-
-# download list of plugins
-urls = Tempfile.new('urls')
-File.open(urls.path, 'w') do |f|
-  content = open('http://plugins.svn.wordpress.org/').read
-  f << content.scan(/<li><a href="([^"]+)\/">/).map { |name| "https://api.wordpress.org/plugins/info/1.0/#{name[0]}.json" }.join("\n")
-end
-
-Dir.mktmpdir('jsons') do |temp_dir|
-  puts "Crawling..."
-
-  # download all plugins using an advanced ruby threading mechanism :)
-  `cd #{temp_dir} && (cat #{urls.path} | xargs -P 16 wget --quiet)`
-
-  # collect infos + push by slice of 1000
-  Dir["#{temp_dir}/*.json"].each_slice(1000) do |paths|
-    # parse JSON
-    infos = paths.map { |f| JSON.parse(File.read(f)) rescue nil }.compact
-
-    # cleanup
-    objects = infos.map do |info|
-      begin
-        info['author'] = info['author'].gsub(/<[^>]+>/, '') rescue nil
-        info['tags'] = info['tags'].values rescue []
-        info['rating'] = (info['rating'] / 20.0).round
-        info.delete('compatibility')
-        info.delete('sections')
-        info
-      rescue
-        nil
-      end
-    end.compact
-
-    # push
-    puts "Pushing #{objects.size} objects..."
-    index.add_objects(objects)
+objects = []
+1.upto(871) do |page|
+  puts "Crawling page #{page}..."
+  html = Nokogiri::HTML open("http://www.magentocommerce.com/magento-connect/catalogsearch/result/?id=&s=1&pl=0&eb=0&hp=0&q=&t=0&p=#{page}").read
+  (html / 'li.featured-extension').each do |ext|
+    price = (ext / '.price').text.strip.gsub('$', '').to_f
+    price_range = if price < 1
+      'Free'
+    elsif price < 10
+      '< $10'
+    elsif price < 20
+      '$10 - $20'
+    elsif price < 30
+      '$20 - $30'
+    elsif price < 50
+      '$30 - $50'
+    elsif price < 100
+      '$50 - $100'
+    else
+      '> $100'
+    end
+    rating = (ext / 'li.rating img').attr('alt').to_s.to_f rescue 0.0
+    obj = {
+      title: (ext / '.featured-extension-title').text.strip,
+      link: (ext / '.featured-extension-title a').attr('href').to_s,
+      thumbnail_url: (ext / 'img.featured-extension-icon').attr('src').to_s,
+      popularity: (ext / 'li.downloads a').text.strip.to_i,
+      rating: rating,
+      rating_i: rating.round,
+      price: price,
+      price_range: price_range,
+      short_description: (ext / '.featured-extension-description').text.strip
+    }
+    objects << obj
   end
-
-  Algolia.move_index index.name, "#{ENV['INDEX_PREFIX']}plugins"
 end
 
+puts "Indexing..."
+Algolia.init application_id: ENV['APPLICATION_ID'], api_key: ENV['API_KEY']
+index = Algolia::Index.new('magento-connect')
+index.clear
+index.set_settings({
+  attributesToIndex: ['unordered(title)', 'unordered(short_description)'],
+  customRanking: ['desc(rating_i)', 'desc(popularity)'],
+  attributesForFaceting: ['price_range', 'rating_i']
+})
+index.add_objects objects
 puts "Done"
