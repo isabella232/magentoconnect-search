@@ -26,7 +26,7 @@ var SearchCtrl = function($scope, $sce, $timeout, $location, algolia) {
 
     if (!content || content.page === 0) {
       if (content) {
-        content.promoted = true;
+        content.promoted = !!content.query;
         forEach(content.hits, function(hit) {
           if (hit.title.indexOf('Algolia') > -1) {
             content.promoted = false;
