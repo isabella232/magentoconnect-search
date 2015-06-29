@@ -4,7 +4,7 @@ var algoliasearchHelper = require('algoliasearch-helper');
 var forEach = require('lodash.foreach');
 
 var SearchCtrl = function($scope, $sce, $timeout, $location, algolia) {
-  $scope.client = algolia.Client('sylvain', '04aa64d1f5fd9b3fdb54769cfa5f3a83');
+  $scope.client = algolia.Client('latency', 'db2af085e1f7dc80f93178182b76ddca');
   $scope.helper = algoliasearchHelper($scope.client, 'magento-connect', {
     facets: ['price_range'],
     disjunctiveFacets: ['rating_i'],
