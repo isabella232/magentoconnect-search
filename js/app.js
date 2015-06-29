@@ -27,6 +27,15 @@ var SearchCtrl = function($scope, $sce, $timeout, $location, algolia) {
     blurredAt = new Date().getTime();
 
     if (!content || content.page === 0) {
+      if (content) {
+        content.promoted = true;
+        forEach(content.hits, function(hit) {
+          if (hit.title.indexOf('Algolia') > -1) {
+            content.promoted = false;
+            return false;
+          }
+        });
+      }
       $scope.content = content;
     } else {
       forEach(content.hits, function(hit) {
@@ -164,7 +173,7 @@ app.filter('fromNow', ['moment', moment.fromNow]);
 
 app.directive('scrolled', ['$window', '$document', scrolled]);
 
-}).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/fake_bcdee26d.js","/")
+}).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/fake_1348d287.js","/")
 },{"./controllers/SearchCtrl":1,"./directives/scrolled":2,"./filters/facet":4,"./filters/moment":5,"algoliasearch/src/browser/builds/algoliasearch.angular":191,"angular":202,"angular-moment":197,"angular-sanitize":200,"buffer":203,"oMfpAn":208}],4:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 "use strict";
