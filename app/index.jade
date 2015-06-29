@@ -82,17 +82,34 @@ html(lang="en" ng-app="myApp")
                     | &nbsp;
                 td.facet-count {{ count | number }}
 
+        .col-md-5.col-md-offset-2.col-sm-8(ng-if="q && content.nbHits")
+          .extension-card.highlighted
+            .media.extension-card-top
+              .media-left.extension-icon
+                a(href="http://www.magentocommerce.com/magento-connect/search-algolia-instant-search.html" target="_blank")
+                  .extension-logo.media-object(style="background: #efefef url(http://www.magentocommerce.com/magento-connect/media/catalog/product/cache/9/small_image/125x/9df78eab33525d08d6e5fb8d27136e95/s/c/screen-shot-2015-05-06-at-15.47.56_1.png) top left no-repeat")
+                .extension-ratings
+              .media-body
+                .extension-price.label.label-success Free
+                h4.extension-name
+                  a(href="http://www.magentocommerce.com/magento-connect/search-algolia-instant-search.html" target="_blank") Algolia Instant Search
+                p.extension-desccription As-You-Type Auto-Completion Menu and Instant Search Results Page, all Customizable &amp; Open-Source.
+            .extension-card-bottom
+              .extension-downloaded.text-center
+                a.btn.btn-info(href="http://www.magentocommerce.com/magento-connect/search-algolia-instant-search.html" target="_blank")
+                  i.fa.fa-download(title="Popularity")
+                  |  Install now
         .col-md-5.col-sm-8(ng-repeat="odd in ::[true, false]" ng-class="{ 'hidden-xs hidden-sm' : !odd }")
           .extension-card(ng-repeat="hit in content.hits track by hit.objectID" ng-class="{ 'hidden-md hidden-lg' : ($odd == odd), 'highlighted' : hit.concatenated }")
             .media.extension-card-top
               .media-left.extension-icon
-                a(href="{{ hit.link }}")
+                a(href="{{ hit.link }}" target="_blank")
                   .extension-logo.media-object(style="background: #efefef url({{ hit.thumbnail_url }}) top left no-repeat")
                 .extension-ratings
                   i.star.fa(ng-repeat="star in ::hit.stars track by $index" ng-class="{ 'fa-star': star, 'fa-star-o': !star }")
               .media-body
                 h4.extension-name
-                  a(href="{{ hit.link }}")
+                  a(href="{{ hit.link }}" target="_blank")
                     span(ng-bind-html="hit._highlightResult.title.value")
                 p.extension-desccription(ng-bind-html="hit._highlightResult.short_description.value")
             .extension-card-bottom
