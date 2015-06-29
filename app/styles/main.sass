@@ -1,0 +1,194 @@
+@import url("//fonts.googleapis.com/css?family=Open+Sans:300,400,600")
+
+$font-family-base: 'Open Sans', sans-serif
+$font-weight-light: 300
+$font-weight-normal: 400
+$font-weight-bold: 600
+
+$gray-darker: #000
+$gray-dark: #23282d
+$gray: #666
+$gray-light: #eee
+$gray-lighter: #fafafa
+
+$text-muted: #ccc
+
+$header-bg: $gray-dark
+$header-color: $gray-lighter
+$border-color: #dedede
+
+$border-radius-base: 0
+
+@import "bootstrap"
+@import "font-awesome"
+
+.form-control:focus
+  border-color: $input-border
+  -webkit-box-shadow: none
+  box-shadow: none
+
+[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak
+  display: none !important
+
+em
+  font-weight: $font-weight-bold
+  font-style: normal
+
+h1, h2, h3, h4, h5, h6
+  font-weight: $font-weight-light
+
+header
+  background: $header-bg url("../images/magento-logo.png") 5% -10% no-repeat
+  color: $gray-lighter
+  padding-top: 2em
+  padding-bottom: 1em
+  position: relative
+  h1, h3
+    text-align: center
+    margin: 0
+  h3
+    margin-top: 0.5em
+    color: $brand-primary
+  .logo
+    position: absolute
+    top: 10px
+    left: 10px
+  .btn-try
+    position: absolute
+    top: 10px
+    right: 10px
+  .input-group
+    margin: 1em auto 0 auto
+    max-width: 600px
+    input
+      height: 2.5em
+      font-size: 2em
+      font-weight: $font-weight-light
+    .input-group-addon
+      font-size: 3.5em
+
+  .github-badges
+    position: absolute
+    bottom: 10px
+    right: 10px
+    text-align: center
+    margin-top: 1em
+    height: 24px
+
+@-webkit-keyframes highlight
+  0%
+    background-color: #FFFFE5
+  100%
+    background-color: white
+@-moz-keyframes highlight
+  0%
+    background-color: #FFFFE5
+  100%
+    background-color: white
+
+.extensions
+  margin-top: 3em
+  opacity: 1;
+  transition: opacity .05s ease-in-out;
+  -moz-transition: opacity .05s ease-in-out;
+  -webkit-transition: opacity .05s ease-in-out;
+  .star
+    color: #E7B900
+  &.blur
+    opacity: 0.5
+  .extension-card
+    margin-bottom: 2em
+    background: white
+    &.highlighted
+      -webkit-animation: highlight 2s 1
+      -moz-animation: highlight 2s 1
+    .extension-card-top
+      border: 1px solid $border-color
+      padding: 1.5em
+      padding-bottom: 0.5em
+      .extension-logo
+        width: 128px
+        height: 128px
+    .extension-card-bottom
+      padding: .5em 1.5em
+      border: 1px solid $border-color
+      border-top: 0
+      background: $gray-lighter
+    .extension-ratings
+      padding-top: 0.5em
+      text-align: center
+    .extension-author
+      text-align: right
+    .extension-price
+      float: right
+    .extension-tags
+      .extension-tag
+        margin-right: 0.2em
+        color: $gray-dark
+        display: inline-block
+        padding: 2px 3px
+        margin: 0 2px 2px 0
+        background: $gray-light
+        font-size: 0.8em
+        em
+          text-decoration: underline
+
+  .facets
+    .facet-value
+      display: block
+      border-bottom: 1px dotted $text-muted
+      padding: 3px 3px
+      &[disabled]
+        cursor: default
+    .facet-rating
+      a:hover
+        text-decoration: none
+    .facet-count
+      color: $text-muted
+      font-size: 0.8em
+    span.facet-count
+      display: block
+      float: right
+      line-height: 1.7em
+    .facet-rating
+      font-size: 1em
+      td
+        border-top: none
+        border-bottom: 1px dotted $text-muted
+        padding: 2px !important
+    td.facet-count
+      text-align: right
+    tr.refined
+      td
+        border: 1px solid $border-color
+      td.facet-count
+        background: $gray-light
+        color: $gray
+    li.refined
+      .facet-value
+        background: $gray-lighter
+        border: 1px solid $border-color
+        padding: 3px 2px
+      .facet-count
+        background: $gray-light
+        color: $gray
+        border: 1px solid $border-color
+        margin: 0
+        padding: 3px 5px
+
+  .stats
+    text-align: right
+    margin-bottom: 0.5em
+    a
+      display: inline-block
+      background: $gray-dark
+      padding: 2px 3px
+      margin-left: 0.5em
+      img
+        height: 1em
+
+  .no-results
+    text-align: center
+    font-size: 3em
+    color: $gray
+    padding-top: 1em

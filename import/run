@@ -1,0 +1,60 @@
+#! /usr/bin/env ruby
+
+require 'rubygems'
+require 'algoliasearch'
+require 'open-uri'
+require 'tempfile'
+
+puts "Initializing..."
+
+Algolia.init application_id: ENV['APPLICATION_ID'], api_key: ENV['API_KEY']
+index = Algolia::Index.new("#{ENV['INDEX_PREFIX']}plugins_tmp")
+index.set_settings({
+  attributesToIndex: ['unordered(name)', 'unordered(tags)', 'author', 'unordered(short_description)'],
+  customRanking: ['desc(downloaded)'],
+  attributesForFaceting: ['author', 'tags', 'rating']
+})
+
+puts "Listing..."
+
+# download list of plugins
+urls = Tempfile.new('urls')
+File.open(urls.path, 'w') do |f|
+  content = open('http://plugins.svn.wordpress.org/').read
+  f << content.scan(/<li><a href="([^"]+)\/">/).map { |name| "https://api.wordpress.org/plugins/info/1.0/#{name[0]}.json" }.join("\n")
+end
+
+Dir.mktmpdir('jsons') do |temp_dir|
+  puts "Crawling..."
+
+  # download all plugins using an advanced ruby threading mechanism :)
+  `cd #{temp_dir} && (cat #{urls.path} | xargs -P 16 wget --quiet)`
+
+  # collect infos + push by slice of 1000
+  Dir["#{temp_dir}/*.json"].each_slice(1000) do |paths|
+    # parse JSON
+    infos = paths.map { |f| JSON.parse(File.read(f)) rescue nil }.compact
+
+    # cleanup
+    objects = infos.map do |info|
+      begin
+        info['author'] = info['author'].gsub(/<[^>]+>/, '') rescue nil
+        info['tags'] = info['tags'].values rescue []
+        info['rating'] = (info['rating'] / 20.0).round
+        info.delete('compatibility')
+        info.delete('sections')
+        info
+      rescue
+        nil
+      end
+    end.compact
+
+    # push
+    puts "Pushing #{objects.size} objects..."
+    index.add_objects(objects)
+  end
+
+  Algolia.move_index index.name, "#{ENV['INDEX_PREFIX']}plugins"
+end
+
+puts "Done"
