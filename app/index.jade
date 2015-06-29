@@ -61,9 +61,6 @@ html(lang="en" ng-app="myApp")
             a(href="http://www.algolia.com/?utm_source=wordpress_extension_search&utm_medium=link&utm_campaign=search_input" target="_blank")
               img(src="images/logo-algolia.png")
 
-        .col-lg-12.no-results(ng-if="content.nbHits === 0")
-          | No results are matching "<strong>{{ q }}</strong>".
-
         .col-md-2.col-sm-4.facets.hidden-xs
           .facet(ng-repeat="facet in content.facets")
             h3 {{ facet.name | facetTitle }}
@@ -82,7 +79,7 @@ html(lang="en" ng-app="myApp")
                     | &nbsp;
                 td.facet-count {{ count | number }}
 
-        .col-md-5.col-md-offset-2.col-sm-8(ng-if="q && content.nbHits")
+        .col-md-5.col-md-offset-2.col-sm-8(ng-if="content.promoted || content.nbHits === 0")
           .extension-card.highlighted
             .media.extension-card-top
               .media-left.extension-icon
