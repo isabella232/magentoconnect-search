@@ -96,8 +96,8 @@ html(lang="en" ng-app="myApp")
                     span(ng-bind-html="hit._highlightResult.title.value")
                 p.extension-desccription(ng-bind-html="hit._highlightResult.short_description.value")
             .extension-card-bottom
-              .extension-price
-                |  ${{ hit.price | number }}
+              .extension-price.label.label-info(ng-if="hit.price > 0") ${{ hit.price | number }}
+              .extension-price.label.label-success(ng-if="hit.price == 0") Free
               .extension-downloaded
                 i.fa.fa-fire(title="Popularity")
                 |  {{ hit.popularity | number }}
