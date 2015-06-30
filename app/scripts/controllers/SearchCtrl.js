@@ -6,8 +6,7 @@ var forEach = require('lodash.foreach');
 var SearchCtrl = function($scope, $sce, $timeout, $location, algolia) {
   $scope.client = algolia.Client('latency', 'db2af085e1f7dc80f93178182b76ddca');
   $scope.helper = algoliasearchHelper($scope.client, 'magento-connect', {
-    facets: ['price_range'],
-    disjunctiveFacets: ['rating_i'],
+    disjunctiveFacets: ['price_range', 'rating_i'],
     maxValuesPerFacet: 10
   });
   $scope.q = $location.search().q || '';
@@ -48,7 +47,7 @@ var SearchCtrl = function($scope, $sce, $timeout, $location, algolia) {
   };
 
   $scope.helper.on('result', function(content) {
-    // rating facet
+    // rating & price range facets
     content.ratingFacet = {
       1: 0,
       2: 0,
@@ -56,6 +55,7 @@ var SearchCtrl = function($scope, $sce, $timeout, $location, algolia) {
       4: 0,
       5: 0
     };
+    content.priceRangeFacet = [];
     forEach(content.disjunctiveFacets, function(facet) {
       if (facet.name === 'rating_i') {
         forEach(facet.data, function(count, value) {
@@ -74,13 +74,7 @@ var SearchCtrl = function($scope, $sce, $timeout, $location, algolia) {
             content.ratingFacet[5] += count;
           }
         });
-      }
-    });
-
-    // price range facet
-    content.priceRangeFacet = [];
-    forEach(content.facets, function(facet) {
-      if (facet.name === 'price_range') {
+      } else if (facet.name === 'price_range') {
         forEach(facet.data, function(count, value) {
           content.priceRangeFacet.push({ label: value, count: count });
         });

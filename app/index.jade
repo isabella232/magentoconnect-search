@@ -64,9 +64,9 @@ html(lang="en" ng-app="myApp")
           .facet(ng-if="content.nbHits")
             h3 Price
             ul.list-unstyled
-              li(ng-repeat="value in content.priceRangeFacet" ng-class="{ refined: (helper.isRefined('price_range', value)) }")
+              li(ng-repeat="value in content.priceRangeFacet" ng-class="{ refined: (helper.isRefined('price_range', value.label)) }")
                 span.facet-count {{ value.count | number }}
-                a.facet-value(href="#" ng-click="toggleRefine($event, 'price_range', value)") {{ value.label }}
+                a.facet-value(href="#" ng-click="toggleRefine($event, 'price_range', value.label)") {{ value.label }}
           .facet
             h3 Rating
             table.table.facet-rating
