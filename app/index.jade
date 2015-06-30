@@ -85,16 +85,14 @@ html(lang="en" ng-app="myApp")
                   .extension-logo.media-object(style="background: #efefef url(http://www.magentocommerce.com/magento-connect/media/catalog/product/cache/9/small_image/125x/9df78eab33525d08d6e5fb8d27136e95/s/c/screen-shot-2015-05-06-at-15.47.56_1.png) top left no-repeat")
                 .extension-ratings
               p.extension-description.text-center As-You-Type Auto-Completion Menu and Instant Search Results Page, all Customizable &amp; Open-Source.
-            .extension-card-bottom
-              .extension-downloaded.text-center
+              p.text-center
+                a.btn.btn-default(href="https://github.com/algolia/algoliasearch-magento" target="_blank")
+                  i.fa.fa-github(title="Fork me")
+                  |  Fork on GH
+              p.text-center
                 a.btn.btn-info(href="http://www.magentocommerce.com/magento-connect/search-algolia-instant-search.html" target="_blank")
                   i.fa.fa-download(title="Popularity")
                   |  Install now
-                br
-                br
-                a.btn.btn-default(href="https://github.com/algolia/algoliasearch-magento" target="_blank")
-                  i.fa.fa-github(title="Fork me")
-                  |  Fork
 
         .col-md-10.no-results(ng-if="content.nbHits === 0")
           | No results are matching "<strong>{{ q }}</strong>".
