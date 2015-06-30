@@ -48,6 +48,7 @@ var SearchCtrl = function($scope, $sce, $timeout, $location, algolia) {
   };
 
   $scope.helper.on('result', function(content) {
+    // rating facet
     content.ratingFacet = {
       1: 0,
       2: 0,
@@ -55,7 +56,6 @@ var SearchCtrl = function($scope, $sce, $timeout, $location, algolia) {
       4: 0,
       5: 0
     };
-
     forEach(content.disjunctiveFacets, function(facet) {
       if (facet.name === 'rating_i') {
         forEach(facet.data, function(count, value) {
@@ -77,6 +77,29 @@ var SearchCtrl = function($scope, $sce, $timeout, $location, algolia) {
       }
     });
 
+    // price range facet
+    content.priceRangeFacet = [];
+    forEach(content.facets, function(facet) {
+      if (facet.name === 'price_range') {
+        forEach(facet.data, function(count, value) {
+          content.priceRangeFacet.push({ label: value, count: count });
+        });
+        content.priceRangeFacet = content.priceRangeFacet.sort(function(a, b) {
+          if (a.label === 'Free') {
+            return -1;
+          } else if (b.label === 'Free') {
+            return 1;
+          } else if (a.label === '> $100') {
+            return 1;
+          } else if (b.label === '> $100') {
+            return -1;
+          }
+          return a.label.localeCompare(b.label);
+        });
+      }
+    });
+
+    // stars
     forEach(content.hits, function(hit) {
       hit.stars = [];
       for (var i = 1; i <= 5; ++i) {

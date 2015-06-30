@@ -10,7 +10,7 @@ objects = []
   puts "Crawling page #{page}..."
   html = Nokogiri::HTML open("http://www.magentocommerce.com/magento-connect/catalogsearch/result/?id=&s=1&pl=0&eb=0&hp=0&q=&t=0&p=#{page}").read
   (html / 'li.featured-extension').each do |ext|
-    price = (ext / '.price').text.strip.gsub('$', '').to_f
+    price = (ext / '.price').text.strip.gsub(/[$€]/, '').to_f
     price_range = if price < 1
       'Free'
     elsif price < 10

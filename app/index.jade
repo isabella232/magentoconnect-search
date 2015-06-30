@@ -62,12 +62,12 @@ html(lang="en" ng-app="myApp")
               img(src="images/logo-algolia.png")
 
         .col-md-2.col-sm-4.facets.hidden-xs
-          .facet(ng-repeat="facet in content.facets")
-            h3 {{ facet.name | facetTitle }}
-            ul.list-unstyled(ng-if="facet.name !== 'rating_i'")
-              li(ng-repeat="(value, count) in ::facet.data" ng-class="{ refined: (helper.isRefined(facet.name, value)) }")
-                span.facet-count {{ count | number }}
-                a.facet-value(href="#" ng-click="toggleRefine($event, facet.name, value)") {{ value }}
+          .facet
+            h3 Price
+            ul.list-unstyled
+              li(ng-repeat="value in content.priceRangeFacet" ng-class="{ refined: (helper.isRefined('price_range', value)) }")
+                span.facet-count {{ value.count | number }}
+                a.facet-value(href="#" ng-click="toggleRefine($event, 'price_range', value)") {{ value.label }}
           .facet
             h3 Rating
             table.table.facet-rating
