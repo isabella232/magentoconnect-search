@@ -50,6 +50,7 @@ var SearchCtrl = function($scope, $sce, $timeout, $location, algolia) {
   };
 
   $scope.helper.on('result', function(content) {
+    // rating facet
     content.ratingFacet = {
       1: 0,
       2: 0,
@@ -57,7 +58,6 @@ var SearchCtrl = function($scope, $sce, $timeout, $location, algolia) {
       4: 0,
       5: 0
     };
-
     forEach(content.disjunctiveFacets, function(facet) {
       if (facet.name === 'rating_i') {
         forEach(facet.data, function(count, value) {
@@ -79,6 +79,29 @@ var SearchCtrl = function($scope, $sce, $timeout, $location, algolia) {
       }
     });
 
+    // price range facet
+    content.priceRangeFacet = [];
+    forEach(content.facets, function(facet) {
+      if (facet.name === 'price_range') {
+        forEach(facet.data, function(count, value) {
+          content.priceRangeFacet.push({ label: value, count: count });
+        });
+        content.priceRangeFacet = content.priceRangeFacet.sort(function(a, b) {
+          if (a.label === 'Free') {
+            return -1;
+          } else if (b.label === 'Free') {
+            return 1;
+          } else if (a.label === '> $100') {
+            return 1;
+          } else if (b.label === '> $100') {
+            return -1;
+          }
+          return a.label.localeCompare(b.label);
+        });
+      }
+    });
+
+    // stars
     forEach(content.hits, function(hit) {
       hit.stars = [];
       for (var i = 1; i <= 5; ++i) {
@@ -133,7 +156,7 @@ var SearchCtrl = function($scope, $sce, $timeout, $location, algolia) {
 module.exports = SearchCtrl;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/controllers/SearchCtrl.js","/controllers")
-},{"algoliasearch-helper":6,"buffer":203,"lodash.foreach":214,"oMfpAn":208}],2:[function(require,module,exports){
+},{"algoliasearch-helper":4,"buffer":201,"lodash.foreach":212,"oMfpAn":206}],2:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 module.exports = function($window, $document) {
   return {
@@ -150,7 +173,7 @@ module.exports = function($window, $document) {
 };
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/directives/scrolled.js","/directives")
-},{"buffer":203,"oMfpAn":208}],3:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],3:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 'use strict';
 
@@ -160,54 +183,16 @@ require('angular-moment');
 require('algoliasearch/src/browser/builds/algoliasearch.angular');
 
 var SearchCtrl = require('./controllers/SearchCtrl');
-var facet = require('./filters/facet');
-var moment = require('./filters/moment');
 var scrolled = require('./directives/scrolled');
 
 var app = angular.module('myApp', ['ngSanitize', 'algoliasearch', 'angularMoment']);
 
 app.controller('SearchCtrl', ['$scope', '$sce', '$timeout', '$location', 'algolia', SearchCtrl]);
 
-app.filter('facetTitle', facet.titleFilter);
-app.filter('fromNow', ['moment', moment.fromNow]);
-
 app.directive('scrolled', ['$window', '$document', scrolled]);
 
-}).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/fake_8959c5c5.js","/")
-},{"./controllers/SearchCtrl":1,"./directives/scrolled":2,"./filters/facet":4,"./filters/moment":5,"algoliasearch/src/browser/builds/algoliasearch.angular":191,"angular":202,"angular-moment":197,"angular-sanitize":200,"buffer":203,"oMfpAn":208}],4:[function(require,module,exports){
-(function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
-"use strict";
-
-var titleFilter = function() {
-  return function(name) {
-    switch (name) {
-      case "price_range": return "Price";
-      default: return "N/A";
-    }
-  };
-};
-
-module.exports = {
-  titleFilter: titleFilter
-};
-
-}).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/filters/facet.js","/filters")
-},{"buffer":203,"oMfpAn":208}],5:[function(require,module,exports){
-(function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
-"strict";
-
-var fromNow = function(moment) {
-  return function(date) {
-    return moment(date, "YYYY-MM-DD h:m Z").fromNow();
-  };
-};
-
-module.exports = {
-  fromNow: fromNow
-};
-
-}).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/filters/moment.js","/filters")
-},{"buffer":203,"oMfpAn":208}],6:[function(require,module,exports){
+}).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/fake_8f6feac2.js","/")
+},{"./controllers/SearchCtrl":1,"./directives/scrolled":2,"algoliasearch/src/browser/builds/algoliasearch.angular":189,"angular":200,"angular-moment":195,"angular-sanitize":198,"buffer":201,"oMfpAn":206}],4:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 "use strict";
 var AlgoliaSearchHelper = require( "./src/algoliasearch.helper" );
@@ -272,7 +257,7 @@ algoliasearchHelper.SearchResults = SearchResults;
 module.exports = algoliasearchHelper;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/index.js","/../../node_modules/algoliasearch-helper")
-},{"./src/SearchParameters":124,"./src/SearchResults":125,"./src/algoliasearch.helper":126,"buffer":203,"oMfpAn":208}],7:[function(require,module,exports){
+},{"./src/SearchParameters":122,"./src/SearchResults":123,"./src/algoliasearch.helper":124,"buffer":201,"oMfpAn":206}],5:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /**
  * Creates an array with all falsey values removed. The values `false`, `null`,
@@ -306,7 +291,7 @@ function compact(array) {
 module.exports = compact;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/array/compact.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/array")
-},{"buffer":203,"oMfpAn":208}],8:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],6:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var baseIndexOf = require('../internal/baseIndexOf'),
     cacheIndexOf = require('../internal/cacheIndexOf'),
@@ -368,7 +353,7 @@ var intersection = restParam(function(arrays) {
 module.exports = intersection;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/array/intersection.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/array")
-},{"../function/restParam":18,"../internal/baseIndexOf":41,"../internal/cacheIndexOf":58,"../internal/createCache":65,"../internal/isArrayLike":82,"buffer":203,"oMfpAn":208}],9:[function(require,module,exports){
+},{"../function/restParam":16,"../internal/baseIndexOf":39,"../internal/cacheIndexOf":56,"../internal/createCache":63,"../internal/isArrayLike":80,"buffer":201,"oMfpAn":206}],7:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /**
  * Gets the last element of `array`.
@@ -391,7 +376,7 @@ function last(array) {
 module.exports = last;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/array/last.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/array")
-},{"buffer":203,"oMfpAn":208}],10:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],8:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var LazyWrapper = require('../internal/LazyWrapper'),
     LodashWrapper = require('../internal/LodashWrapper'),
@@ -518,7 +503,7 @@ lodash.prototype = baseLodash.prototype;
 module.exports = lodash;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/chain/lodash.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/chain")
-},{"../internal/LazyWrapper":19,"../internal/LodashWrapper":20,"../internal/baseLodash":46,"../internal/isObjectLike":88,"../internal/wrapperClone":102,"../lang/isArray":104,"buffer":203,"oMfpAn":208}],11:[function(require,module,exports){
+},{"../internal/LazyWrapper":17,"../internal/LodashWrapper":18,"../internal/baseLodash":44,"../internal/isObjectLike":86,"../internal/wrapperClone":100,"../lang/isArray":102,"buffer":201,"oMfpAn":206}],9:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var arrayFilter = require('../internal/arrayFilter'),
     baseCallback = require('../internal/baseCallback'),
@@ -583,7 +568,7 @@ function filter(collection, predicate, thisArg) {
 module.exports = filter;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/collection/filter.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/collection")
-},{"../internal/arrayFilter":24,"../internal/baseCallback":29,"../internal/baseFilter":33,"../lang/isArray":104,"buffer":203,"oMfpAn":208}],12:[function(require,module,exports){
+},{"../internal/arrayFilter":22,"../internal/baseCallback":27,"../internal/baseFilter":31,"../lang/isArray":102,"buffer":201,"oMfpAn":206}],10:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var baseEach = require('../internal/baseEach'),
     createFind = require('../internal/createFind');
@@ -643,7 +628,7 @@ var find = createFind(baseEach);
 module.exports = find;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/collection/find.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/collection")
-},{"../internal/baseEach":32,"../internal/createFind":67,"buffer":203,"oMfpAn":208}],13:[function(require,module,exports){
+},{"../internal/baseEach":30,"../internal/createFind":65,"buffer":201,"oMfpAn":206}],11:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var arrayEach = require('../internal/arrayEach'),
     baseEach = require('../internal/baseEach'),
@@ -684,7 +669,7 @@ var forEach = createForEach(arrayEach, baseEach);
 module.exports = forEach;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/collection/forEach.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/collection")
-},{"../internal/arrayEach":23,"../internal/baseEach":32,"../internal/createForEach":68,"buffer":203,"oMfpAn":208}],14:[function(require,module,exports){
+},{"../internal/arrayEach":21,"../internal/baseEach":30,"../internal/createForEach":66,"buffer":201,"oMfpAn":206}],12:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var arrayReduce = require('../internal/arrayReduce'),
     baseEach = require('../internal/baseEach'),
@@ -731,12 +716,12 @@ var reduce = createReduce(arrayReduce, baseEach);
 module.exports = reduce;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/collection/reduce.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/collection")
-},{"../internal/arrayReduce":26,"../internal/baseEach":32,"../internal/createReduce":71,"buffer":203,"oMfpAn":208}],15:[function(require,module,exports){
+},{"../internal/arrayReduce":24,"../internal/baseEach":30,"../internal/createReduce":69,"buffer":201,"oMfpAn":206}],13:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 module.exports = require('../math/sum');
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/collection/sum.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/collection")
-},{"../math/sum":112,"buffer":203,"oMfpAn":208}],16:[function(require,module,exports){
+},{"../math/sum":110,"buffer":201,"oMfpAn":206}],14:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var getNative = require('../internal/getNative');
 
@@ -764,7 +749,7 @@ var now = nativeNow || function() {
 module.exports = now;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/date/now.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/date")
-},{"../internal/getNative":80,"buffer":203,"oMfpAn":208}],17:[function(require,module,exports){
+},{"../internal/getNative":78,"buffer":201,"oMfpAn":206}],15:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var createWrapper = require('../internal/createWrapper'),
     replaceHolders = require('../internal/replaceHolders'),
@@ -824,7 +809,7 @@ bind.placeholder = {};
 module.exports = bind;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/function/bind.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/function")
-},{"../internal/createWrapper":72,"../internal/replaceHolders":96,"./restParam":18,"buffer":203,"oMfpAn":208}],18:[function(require,module,exports){
+},{"../internal/createWrapper":70,"../internal/replaceHolders":94,"./restParam":16,"buffer":201,"oMfpAn":206}],16:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /** Used as the `TypeError` message for "Functions" methods. */
 var FUNC_ERROR_TEXT = 'Expected a function';
@@ -886,7 +871,7 @@ function restParam(func, start) {
 module.exports = restParam;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/function/restParam.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/function")
-},{"buffer":203,"oMfpAn":208}],19:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],17:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var baseCreate = require('./baseCreate'),
     baseLodash = require('./baseLodash');
@@ -917,7 +902,7 @@ LazyWrapper.prototype.constructor = LazyWrapper;
 module.exports = LazyWrapper;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/LazyWrapper.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"./baseCreate":30,"./baseLodash":46,"buffer":203,"oMfpAn":208}],20:[function(require,module,exports){
+},{"./baseCreate":28,"./baseLodash":44,"buffer":201,"oMfpAn":206}],18:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var baseCreate = require('./baseCreate'),
     baseLodash = require('./baseLodash');
@@ -942,7 +927,7 @@ LodashWrapper.prototype.constructor = LodashWrapper;
 module.exports = LodashWrapper;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/LodashWrapper.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"./baseCreate":30,"./baseLodash":46,"buffer":203,"oMfpAn":208}],21:[function(require,module,exports){
+},{"./baseCreate":28,"./baseLodash":44,"buffer":201,"oMfpAn":206}],19:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var cachePush = require('./cachePush'),
     getNative = require('./getNative');
@@ -975,7 +960,7 @@ SetCache.prototype.push = cachePush;
 module.exports = SetCache;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/SetCache.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"./cachePush":59,"./getNative":80,"buffer":203,"oMfpAn":208}],22:[function(require,module,exports){
+},{"./cachePush":57,"./getNative":78,"buffer":201,"oMfpAn":206}],20:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /**
  * Copies the values of `source` to `array`.
@@ -999,7 +984,7 @@ function arrayCopy(source, array) {
 module.exports = arrayCopy;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/arrayCopy.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"buffer":203,"oMfpAn":208}],23:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],21:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /**
  * A specialized version of `_.forEach` for arrays without support for callback
@@ -1025,7 +1010,7 @@ function arrayEach(array, iteratee) {
 module.exports = arrayEach;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/arrayEach.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"buffer":203,"oMfpAn":208}],24:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],22:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /**
  * A specialized version of `_.filter` for arrays without support for callback
@@ -1054,7 +1039,7 @@ function arrayFilter(array, predicate) {
 module.exports = arrayFilter;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/arrayFilter.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"buffer":203,"oMfpAn":208}],25:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],23:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /**
  * A specialized version of `_.map` for arrays without support for callback
@@ -1079,7 +1064,7 @@ function arrayMap(array, iteratee) {
 module.exports = arrayMap;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/arrayMap.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"buffer":203,"oMfpAn":208}],26:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],24:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /**
  * A specialized version of `_.reduce` for arrays without support for callback
@@ -1109,7 +1094,7 @@ function arrayReduce(array, iteratee, accumulator, initFromArray) {
 module.exports = arrayReduce;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/arrayReduce.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"buffer":203,"oMfpAn":208}],27:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],25:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /**
  * A specialized version of `_.some` for arrays without support for callback
@@ -1136,7 +1121,7 @@ function arraySome(array, predicate) {
 module.exports = arraySome;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/arraySome.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"buffer":203,"oMfpAn":208}],28:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],26:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /**
  * A specialized version of `_.sum` for arrays without support for iteratees.
@@ -1158,7 +1143,7 @@ function arraySum(array) {
 module.exports = arraySum;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/arraySum.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"buffer":203,"oMfpAn":208}],29:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],27:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var baseMatches = require('./baseMatches'),
     baseMatchesProperty = require('./baseMatchesProperty'),
@@ -1197,7 +1182,7 @@ function baseCallback(func, thisArg, argCount) {
 module.exports = baseCallback;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/baseCallback.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"../utility/identity":120,"../utility/property":122,"./baseMatches":47,"./baseMatchesProperty":48,"./bindCallback":57,"buffer":203,"oMfpAn":208}],30:[function(require,module,exports){
+},{"../utility/identity":118,"../utility/property":120,"./baseMatches":45,"./baseMatchesProperty":46,"./bindCallback":55,"buffer":201,"oMfpAn":206}],28:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var isObject = require('../lang/isObject');
 
@@ -1224,7 +1209,7 @@ var baseCreate = (function() {
 module.exports = baseCreate;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/baseCreate.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"../lang/isObject":108,"buffer":203,"oMfpAn":208}],31:[function(require,module,exports){
+},{"../lang/isObject":106,"buffer":201,"oMfpAn":206}],29:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var baseIndexOf = require('./baseIndexOf'),
     cacheIndexOf = require('./cacheIndexOf'),
@@ -1280,7 +1265,7 @@ function baseDifference(array, values) {
 module.exports = baseDifference;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/baseDifference.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"./baseIndexOf":41,"./cacheIndexOf":58,"./createCache":65,"buffer":203,"oMfpAn":208}],32:[function(require,module,exports){
+},{"./baseIndexOf":39,"./cacheIndexOf":56,"./createCache":63,"buffer":201,"oMfpAn":206}],30:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var baseForOwn = require('./baseForOwn'),
     createBaseEach = require('./createBaseEach');
@@ -1299,7 +1284,7 @@ var baseEach = createBaseEach(baseForOwn);
 module.exports = baseEach;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/baseEach.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"./baseForOwn":39,"./createBaseEach":62,"buffer":203,"oMfpAn":208}],33:[function(require,module,exports){
+},{"./baseForOwn":37,"./createBaseEach":60,"buffer":201,"oMfpAn":206}],31:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var baseEach = require('./baseEach');
 
@@ -1325,7 +1310,7 @@ function baseFilter(collection, predicate) {
 module.exports = baseFilter;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/baseFilter.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"./baseEach":32,"buffer":203,"oMfpAn":208}],34:[function(require,module,exports){
+},{"./baseEach":30,"buffer":201,"oMfpAn":206}],32:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /**
  * The base implementation of `_.find`, `_.findLast`, `_.findKey`, and `_.findLastKey`,
@@ -1354,7 +1339,7 @@ function baseFind(collection, predicate, eachFunc, retKey) {
 module.exports = baseFind;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/baseFind.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"buffer":203,"oMfpAn":208}],35:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],33:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /**
  * The base implementation of `_.findIndex` and `_.findLastIndex` without
@@ -1381,7 +1366,7 @@ function baseFindIndex(array, predicate, fromRight) {
 module.exports = baseFindIndex;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/baseFindIndex.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"buffer":203,"oMfpAn":208}],36:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],34:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var isArguments = require('../lang/isArguments'),
     isArray = require('../lang/isArray'),
@@ -1428,7 +1413,7 @@ function baseFlatten(array, isDeep, isStrict) {
 module.exports = baseFlatten;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/baseFlatten.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"../lang/isArguments":103,"../lang/isArray":104,"./isArrayLike":82,"./isObjectLike":88,"buffer":203,"oMfpAn":208}],37:[function(require,module,exports){
+},{"../lang/isArguments":101,"../lang/isArray":102,"./isArrayLike":80,"./isObjectLike":86,"buffer":201,"oMfpAn":206}],35:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var createBaseFor = require('./createBaseFor');
 
@@ -1449,7 +1434,7 @@ var baseFor = createBaseFor();
 module.exports = baseFor;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/baseFor.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"./createBaseFor":63,"buffer":203,"oMfpAn":208}],38:[function(require,module,exports){
+},{"./createBaseFor":61,"buffer":201,"oMfpAn":206}],36:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var baseFor = require('./baseFor'),
     keysIn = require('../object/keysIn');
@@ -1470,7 +1455,7 @@ function baseForIn(object, iteratee) {
 module.exports = baseForIn;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/baseForIn.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"../object/keysIn":114,"./baseFor":37,"buffer":203,"oMfpAn":208}],39:[function(require,module,exports){
+},{"../object/keysIn":112,"./baseFor":35,"buffer":201,"oMfpAn":206}],37:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var baseFor = require('./baseFor'),
     keys = require('../object/keys');
@@ -1491,7 +1476,7 @@ function baseForOwn(object, iteratee) {
 module.exports = baseForOwn;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/baseForOwn.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"../object/keys":113,"./baseFor":37,"buffer":203,"oMfpAn":208}],40:[function(require,module,exports){
+},{"../object/keys":111,"./baseFor":35,"buffer":201,"oMfpAn":206}],38:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var toObject = require('./toObject');
 
@@ -1524,7 +1509,7 @@ function baseGet(object, path, pathKey) {
 module.exports = baseGet;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/baseGet.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"./toObject":100,"buffer":203,"oMfpAn":208}],41:[function(require,module,exports){
+},{"./toObject":98,"buffer":201,"oMfpAn":206}],39:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var indexOfNaN = require('./indexOfNaN');
 
@@ -1555,7 +1540,7 @@ function baseIndexOf(array, value, fromIndex) {
 module.exports = baseIndexOf;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/baseIndexOf.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"./indexOfNaN":81,"buffer":203,"oMfpAn":208}],42:[function(require,module,exports){
+},{"./indexOfNaN":79,"buffer":201,"oMfpAn":206}],40:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var baseIsEqualDeep = require('./baseIsEqualDeep'),
     isObject = require('../lang/isObject'),
@@ -1587,7 +1572,7 @@ function baseIsEqual(value, other, customizer, isLoose, stackA, stackB) {
 module.exports = baseIsEqual;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/baseIsEqual.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"../lang/isObject":108,"./baseIsEqualDeep":43,"./isObjectLike":88,"buffer":203,"oMfpAn":208}],43:[function(require,module,exports){
+},{"../lang/isObject":106,"./baseIsEqualDeep":41,"./isObjectLike":86,"buffer":201,"oMfpAn":206}],41:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var equalArrays = require('./equalArrays'),
     equalByTag = require('./equalByTag'),
@@ -1693,7 +1678,7 @@ function baseIsEqualDeep(object, other, equalFunc, customizer, isLoose, stackA, 
 module.exports = baseIsEqualDeep;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/baseIsEqualDeep.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"../lang/isArray":104,"../lang/isTypedArray":110,"./equalArrays":73,"./equalByTag":74,"./equalObjects":75,"buffer":203,"oMfpAn":208}],44:[function(require,module,exports){
+},{"../lang/isArray":102,"../lang/isTypedArray":108,"./equalArrays":71,"./equalByTag":72,"./equalObjects":73,"buffer":201,"oMfpAn":206}],42:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /**
  * The base implementation of `_.isFunction` without support for environments
@@ -1712,7 +1697,7 @@ function baseIsFunction(value) {
 module.exports = baseIsFunction;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/baseIsFunction.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"buffer":203,"oMfpAn":208}],45:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],43:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var baseIsEqual = require('./baseIsEqual'),
     toObject = require('./toObject');
@@ -1768,7 +1753,7 @@ function baseIsMatch(object, matchData, customizer) {
 module.exports = baseIsMatch;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/baseIsMatch.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"./baseIsEqual":42,"./toObject":100,"buffer":203,"oMfpAn":208}],46:[function(require,module,exports){
+},{"./baseIsEqual":40,"./toObject":98,"buffer":201,"oMfpAn":206}],44:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /**
  * The function whose prototype all chaining wrappers inherit from.
@@ -1782,7 +1767,7 @@ function baseLodash() {
 module.exports = baseLodash;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/baseLodash.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"buffer":203,"oMfpAn":208}],47:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],45:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var baseIsMatch = require('./baseIsMatch'),
     getMatchData = require('./getMatchData'),
@@ -1816,7 +1801,7 @@ function baseMatches(source) {
 module.exports = baseMatches;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/baseMatches.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"./baseIsMatch":45,"./getMatchData":79,"./toObject":100,"buffer":203,"oMfpAn":208}],48:[function(require,module,exports){
+},{"./baseIsMatch":43,"./getMatchData":77,"./toObject":98,"buffer":201,"oMfpAn":206}],46:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var baseGet = require('./baseGet'),
     baseIsEqual = require('./baseIsEqual'),
@@ -1865,7 +1850,7 @@ function baseMatchesProperty(path, srcValue) {
 module.exports = baseMatchesProperty;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/baseMatchesProperty.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"../array/last":9,"../lang/isArray":104,"./baseGet":40,"./baseIsEqual":42,"./baseSlice":53,"./isKey":85,"./isStrictComparable":89,"./toObject":100,"./toPath":101,"buffer":203,"oMfpAn":208}],49:[function(require,module,exports){
+},{"../array/last":7,"../lang/isArray":102,"./baseGet":38,"./baseIsEqual":40,"./baseSlice":51,"./isKey":83,"./isStrictComparable":87,"./toObject":98,"./toPath":99,"buffer":201,"oMfpAn":206}],47:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /**
  * The base implementation of `_.property` without support for deep paths.
@@ -1883,7 +1868,7 @@ function baseProperty(key) {
 module.exports = baseProperty;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/baseProperty.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"buffer":203,"oMfpAn":208}],50:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],48:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var baseGet = require('./baseGet'),
     toPath = require('./toPath');
@@ -1906,7 +1891,7 @@ function basePropertyDeep(path) {
 module.exports = basePropertyDeep;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/basePropertyDeep.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"./baseGet":40,"./toPath":101,"buffer":203,"oMfpAn":208}],51:[function(require,module,exports){
+},{"./baseGet":38,"./toPath":99,"buffer":201,"oMfpAn":206}],49:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /**
  * The base implementation of `_.reduce` and `_.reduceRight` without support
@@ -1934,7 +1919,7 @@ function baseReduce(collection, iteratee, accumulator, initFromCollection, eachF
 module.exports = baseReduce;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/baseReduce.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"buffer":203,"oMfpAn":208}],52:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],50:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var identity = require('../utility/identity'),
     metaMap = require('./metaMap');
@@ -1955,7 +1940,7 @@ var baseSetData = !metaMap ? identity : function(func, data) {
 module.exports = baseSetData;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/baseSetData.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"../utility/identity":120,"./metaMap":91,"buffer":203,"oMfpAn":208}],53:[function(require,module,exports){
+},{"../utility/identity":118,"./metaMap":89,"buffer":201,"oMfpAn":206}],51:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /**
  * The base implementation of `_.slice` without an iteratee call guard.
@@ -1991,7 +1976,7 @@ function baseSlice(array, start, end) {
 module.exports = baseSlice;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/baseSlice.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"buffer":203,"oMfpAn":208}],54:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],52:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var baseEach = require('./baseEach');
 
@@ -2015,7 +2000,7 @@ function baseSum(collection, iteratee) {
 module.exports = baseSum;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/baseSum.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"./baseEach":32,"buffer":203,"oMfpAn":208}],55:[function(require,module,exports){
+},{"./baseEach":30,"buffer":201,"oMfpAn":206}],53:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /**
  * Converts `value` to a string if it's not one. An empty string is returned
@@ -2035,7 +2020,7 @@ function baseToString(value) {
 module.exports = baseToString;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/baseToString.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"buffer":203,"oMfpAn":208}],56:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],54:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /**
  * The base implementation of `_.values` and `_.valuesIn` which creates an
@@ -2061,7 +2046,7 @@ function baseValues(object, props) {
 module.exports = baseValues;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/baseValues.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"buffer":203,"oMfpAn":208}],57:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],55:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var identity = require('../utility/identity');
 
@@ -2104,7 +2089,7 @@ function bindCallback(func, thisArg, argCount) {
 module.exports = bindCallback;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/bindCallback.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"../utility/identity":120,"buffer":203,"oMfpAn":208}],58:[function(require,module,exports){
+},{"../utility/identity":118,"buffer":201,"oMfpAn":206}],56:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var isObject = require('../lang/isObject');
 
@@ -2127,7 +2112,7 @@ function cacheIndexOf(cache, value) {
 module.exports = cacheIndexOf;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/cacheIndexOf.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"../lang/isObject":108,"buffer":203,"oMfpAn":208}],59:[function(require,module,exports){
+},{"../lang/isObject":106,"buffer":201,"oMfpAn":206}],57:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var isObject = require('../lang/isObject');
 
@@ -2151,7 +2136,7 @@ function cachePush(value) {
 module.exports = cachePush;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/cachePush.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"../lang/isObject":108,"buffer":203,"oMfpAn":208}],60:[function(require,module,exports){
+},{"../lang/isObject":106,"buffer":201,"oMfpAn":206}],58:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /* Native method references for those with the same name as other `lodash` methods. */
 var nativeMax = Math.max;
@@ -2189,7 +2174,7 @@ function composeArgs(args, partials, holders) {
 module.exports = composeArgs;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/composeArgs.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"buffer":203,"oMfpAn":208}],61:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],59:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /* Native method references for those with the same name as other `lodash` methods. */
 var nativeMax = Math.max;
@@ -2229,7 +2214,7 @@ function composeArgsRight(args, partials, holders) {
 module.exports = composeArgsRight;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/composeArgsRight.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"buffer":203,"oMfpAn":208}],62:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],60:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var getLength = require('./getLength'),
     isLength = require('./isLength'),
@@ -2264,7 +2249,7 @@ function createBaseEach(eachFunc, fromRight) {
 module.exports = createBaseEach;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/createBaseEach.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"./getLength":78,"./isLength":87,"./toObject":100,"buffer":203,"oMfpAn":208}],63:[function(require,module,exports){
+},{"./getLength":76,"./isLength":85,"./toObject":98,"buffer":201,"oMfpAn":206}],61:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var toObject = require('./toObject');
 
@@ -2295,7 +2280,7 @@ function createBaseFor(fromRight) {
 module.exports = createBaseFor;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/createBaseFor.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"./toObject":100,"buffer":203,"oMfpAn":208}],64:[function(require,module,exports){
+},{"./toObject":98,"buffer":201,"oMfpAn":206}],62:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var createCtorWrapper = require('./createCtorWrapper');
 
@@ -2321,7 +2306,7 @@ function createBindWrapper(func, thisArg) {
 module.exports = createBindWrapper;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/createBindWrapper.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"./createCtorWrapper":66,"buffer":203,"oMfpAn":208}],65:[function(require,module,exports){
+},{"./createCtorWrapper":64,"buffer":201,"oMfpAn":206}],63:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var SetCache = require('./SetCache'),
     constant = require('../utility/constant'),
@@ -2347,7 +2332,7 @@ var createCache = !(nativeCreate && Set) ? constant(null) : function(values) {
 module.exports = createCache;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/createCache.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"../utility/constant":119,"./SetCache":21,"./getNative":80,"buffer":203,"oMfpAn":208}],66:[function(require,module,exports){
+},{"../utility/constant":117,"./SetCache":19,"./getNative":78,"buffer":201,"oMfpAn":206}],64:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var baseCreate = require('./baseCreate'),
     isObject = require('../lang/isObject');
@@ -2386,7 +2371,7 @@ function createCtorWrapper(Ctor) {
 module.exports = createCtorWrapper;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/createCtorWrapper.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"../lang/isObject":108,"./baseCreate":30,"buffer":203,"oMfpAn":208}],67:[function(require,module,exports){
+},{"../lang/isObject":106,"./baseCreate":28,"buffer":201,"oMfpAn":206}],65:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var baseCallback = require('./baseCallback'),
     baseFind = require('./baseFind'),
@@ -2415,7 +2400,7 @@ function createFind(eachFunc, fromRight) {
 module.exports = createFind;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/createFind.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"../lang/isArray":104,"./baseCallback":29,"./baseFind":34,"./baseFindIndex":35,"buffer":203,"oMfpAn":208}],68:[function(require,module,exports){
+},{"../lang/isArray":102,"./baseCallback":27,"./baseFind":32,"./baseFindIndex":33,"buffer":201,"oMfpAn":206}],66:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var bindCallback = require('./bindCallback'),
     isArray = require('../lang/isArray');
@@ -2439,7 +2424,7 @@ function createForEach(arrayFunc, eachFunc) {
 module.exports = createForEach;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/createForEach.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"../lang/isArray":104,"./bindCallback":57,"buffer":203,"oMfpAn":208}],69:[function(require,module,exports){
+},{"../lang/isArray":102,"./bindCallback":55,"buffer":201,"oMfpAn":206}],67:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var arrayCopy = require('./arrayCopy'),
     composeArgs = require('./composeArgs'),
@@ -2554,7 +2539,7 @@ function createHybridWrapper(func, bitmask, thisArg, partials, holders, partials
 module.exports = createHybridWrapper;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/createHybridWrapper.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"./arrayCopy":22,"./composeArgs":60,"./composeArgsRight":61,"./createCtorWrapper":66,"./isLaziable":86,"./reorder":95,"./replaceHolders":96,"./setData":97,"buffer":203,"oMfpAn":208}],70:[function(require,module,exports){
+},{"./arrayCopy":20,"./composeArgs":58,"./composeArgsRight":59,"./createCtorWrapper":64,"./isLaziable":84,"./reorder":93,"./replaceHolders":94,"./setData":95,"buffer":201,"oMfpAn":206}],68:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var createCtorWrapper = require('./createCtorWrapper');
 
@@ -2601,7 +2586,7 @@ function createPartialWrapper(func, bitmask, thisArg, partials) {
 module.exports = createPartialWrapper;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/createPartialWrapper.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"./createCtorWrapper":66,"buffer":203,"oMfpAn":208}],71:[function(require,module,exports){
+},{"./createCtorWrapper":64,"buffer":201,"oMfpAn":206}],69:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var baseCallback = require('./baseCallback'),
     baseReduce = require('./baseReduce'),
@@ -2627,7 +2612,7 @@ function createReduce(arrayFunc, eachFunc) {
 module.exports = createReduce;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/createReduce.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"../lang/isArray":104,"./baseCallback":29,"./baseReduce":51,"buffer":203,"oMfpAn":208}],72:[function(require,module,exports){
+},{"../lang/isArray":102,"./baseCallback":27,"./baseReduce":49,"buffer":201,"oMfpAn":206}],70:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var baseSetData = require('./baseSetData'),
     createBindWrapper = require('./createBindWrapper'),
@@ -2717,7 +2702,7 @@ function createWrapper(func, bitmask, thisArg, partials, holders, argPos, ary, a
 module.exports = createWrapper;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/createWrapper.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"./baseSetData":52,"./createBindWrapper":64,"./createHybridWrapper":69,"./createPartialWrapper":70,"./getData":76,"./mergeData":90,"./setData":97,"buffer":203,"oMfpAn":208}],73:[function(require,module,exports){
+},{"./baseSetData":50,"./createBindWrapper":62,"./createHybridWrapper":67,"./createPartialWrapper":68,"./getData":74,"./mergeData":88,"./setData":95,"buffer":201,"oMfpAn":206}],71:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var arraySome = require('./arraySome');
 
@@ -2772,7 +2757,7 @@ function equalArrays(array, other, equalFunc, customizer, isLoose, stackA, stack
 module.exports = equalArrays;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/equalArrays.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"./arraySome":27,"buffer":203,"oMfpAn":208}],74:[function(require,module,exports){
+},{"./arraySome":25,"buffer":201,"oMfpAn":206}],72:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /** `Object#toString` result references. */
 var boolTag = '[object Boolean]',
@@ -2824,7 +2809,7 @@ function equalByTag(object, other, tag) {
 module.exports = equalByTag;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/equalByTag.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"buffer":203,"oMfpAn":208}],75:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],73:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var keys = require('../object/keys');
 
@@ -2895,7 +2880,7 @@ function equalObjects(object, other, equalFunc, customizer, isLoose, stackA, sta
 module.exports = equalObjects;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/equalObjects.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"../object/keys":113,"buffer":203,"oMfpAn":208}],76:[function(require,module,exports){
+},{"../object/keys":111,"buffer":201,"oMfpAn":206}],74:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var metaMap = require('./metaMap'),
     noop = require('../utility/noop');
@@ -2914,7 +2899,7 @@ var getData = !metaMap ? noop : function(func) {
 module.exports = getData;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/getData.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"../utility/noop":121,"./metaMap":91,"buffer":203,"oMfpAn":208}],77:[function(require,module,exports){
+},{"../utility/noop":119,"./metaMap":89,"buffer":201,"oMfpAn":206}],75:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var realNames = require('./realNames');
 
@@ -2943,7 +2928,7 @@ function getFuncName(func) {
 module.exports = getFuncName;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/getFuncName.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"./realNames":94,"buffer":203,"oMfpAn":208}],78:[function(require,module,exports){
+},{"./realNames":92,"buffer":201,"oMfpAn":206}],76:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var baseProperty = require('./baseProperty');
 
@@ -2962,7 +2947,7 @@ var getLength = baseProperty('length');
 module.exports = getLength;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/getLength.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"./baseProperty":49,"buffer":203,"oMfpAn":208}],79:[function(require,module,exports){
+},{"./baseProperty":47,"buffer":201,"oMfpAn":206}],77:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var isStrictComparable = require('./isStrictComparable'),
     pairs = require('../object/pairs');
@@ -2987,7 +2972,7 @@ function getMatchData(object) {
 module.exports = getMatchData;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/getMatchData.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"../object/pairs":116,"./isStrictComparable":89,"buffer":203,"oMfpAn":208}],80:[function(require,module,exports){
+},{"../object/pairs":114,"./isStrictComparable":87,"buffer":201,"oMfpAn":206}],78:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var isNative = require('../lang/isNative');
 
@@ -3007,7 +2992,7 @@ function getNative(object, key) {
 module.exports = getNative;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/getNative.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"../lang/isNative":107,"buffer":203,"oMfpAn":208}],81:[function(require,module,exports){
+},{"../lang/isNative":105,"buffer":201,"oMfpAn":206}],79:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /**
  * Gets the index at which the first occurrence of `NaN` is found in `array`.
@@ -3034,7 +3019,7 @@ function indexOfNaN(array, fromIndex, fromRight) {
 module.exports = indexOfNaN;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/indexOfNaN.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"buffer":203,"oMfpAn":208}],82:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],80:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var getLength = require('./getLength'),
     isLength = require('./isLength');
@@ -3053,7 +3038,7 @@ function isArrayLike(value) {
 module.exports = isArrayLike;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/isArrayLike.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"./getLength":78,"./isLength":87,"buffer":203,"oMfpAn":208}],83:[function(require,module,exports){
+},{"./getLength":76,"./isLength":85,"buffer":201,"oMfpAn":206}],81:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /** Used to detect unsigned integer values. */
 var reIsUint = /^\d+$/;
@@ -3081,7 +3066,7 @@ function isIndex(value, length) {
 module.exports = isIndex;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/isIndex.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"buffer":203,"oMfpAn":208}],84:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],82:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var isArrayLike = require('./isArrayLike'),
     isIndex = require('./isIndex'),
@@ -3113,7 +3098,7 @@ function isIterateeCall(value, index, object) {
 module.exports = isIterateeCall;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/isIterateeCall.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"../lang/isObject":108,"./isArrayLike":82,"./isIndex":83,"buffer":203,"oMfpAn":208}],85:[function(require,module,exports){
+},{"../lang/isObject":106,"./isArrayLike":80,"./isIndex":81,"buffer":201,"oMfpAn":206}],83:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var isArray = require('../lang/isArray'),
     toObject = require('./toObject');
@@ -3145,7 +3130,7 @@ function isKey(value, object) {
 module.exports = isKey;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/isKey.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"../lang/isArray":104,"./toObject":100,"buffer":203,"oMfpAn":208}],86:[function(require,module,exports){
+},{"../lang/isArray":102,"./toObject":98,"buffer":201,"oMfpAn":206}],84:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var LazyWrapper = require('./LazyWrapper'),
     getData = require('./getData'),
@@ -3175,7 +3160,7 @@ function isLaziable(func) {
 module.exports = isLaziable;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/isLaziable.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"../chain/lodash":10,"./LazyWrapper":19,"./getData":76,"./getFuncName":77,"buffer":203,"oMfpAn":208}],87:[function(require,module,exports){
+},{"../chain/lodash":8,"./LazyWrapper":17,"./getData":74,"./getFuncName":75,"buffer":201,"oMfpAn":206}],85:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /**
  * Used as the [maximum length](https://people.mozilla.org/~jorendorff/es6-draft.html#sec-number.max_safe_integer)
@@ -3199,7 +3184,7 @@ function isLength(value) {
 module.exports = isLength;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/isLength.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"buffer":203,"oMfpAn":208}],88:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],86:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /**
  * Checks if `value` is object-like.
@@ -3215,7 +3200,7 @@ function isObjectLike(value) {
 module.exports = isObjectLike;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/isObjectLike.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"buffer":203,"oMfpAn":208}],89:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],87:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var isObject = require('../lang/isObject');
 
@@ -3234,7 +3219,7 @@ function isStrictComparable(value) {
 module.exports = isStrictComparable;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/isStrictComparable.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"../lang/isObject":108,"buffer":203,"oMfpAn":208}],90:[function(require,module,exports){
+},{"../lang/isObject":106,"buffer":201,"oMfpAn":206}],88:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var arrayCopy = require('./arrayCopy'),
     composeArgs = require('./composeArgs'),
@@ -3327,7 +3312,7 @@ function mergeData(data, source) {
 module.exports = mergeData;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/mergeData.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"./arrayCopy":22,"./composeArgs":60,"./composeArgsRight":61,"./replaceHolders":96,"buffer":203,"oMfpAn":208}],91:[function(require,module,exports){
+},{"./arrayCopy":20,"./composeArgs":58,"./composeArgsRight":59,"./replaceHolders":94,"buffer":201,"oMfpAn":206}],89:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var getNative = require('./getNative');
 
@@ -3340,7 +3325,7 @@ var metaMap = WeakMap && new WeakMap;
 module.exports = metaMap;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/metaMap.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"./getNative":80,"buffer":203,"oMfpAn":208}],92:[function(require,module,exports){
+},{"./getNative":78,"buffer":201,"oMfpAn":206}],90:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var toObject = require('./toObject');
 
@@ -3372,7 +3357,7 @@ function pickByArray(object, props) {
 module.exports = pickByArray;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/pickByArray.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"./toObject":100,"buffer":203,"oMfpAn":208}],93:[function(require,module,exports){
+},{"./toObject":98,"buffer":201,"oMfpAn":206}],91:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var baseForIn = require('./baseForIn');
 
@@ -3398,7 +3383,7 @@ function pickByCallback(object, predicate) {
 module.exports = pickByCallback;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/pickByCallback.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"./baseForIn":38,"buffer":203,"oMfpAn":208}],94:[function(require,module,exports){
+},{"./baseForIn":36,"buffer":201,"oMfpAn":206}],92:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /** Used to lookup unminified function names. */
 var realNames = {};
@@ -3406,7 +3391,7 @@ var realNames = {};
 module.exports = realNames;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/realNames.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"buffer":203,"oMfpAn":208}],95:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],93:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var arrayCopy = require('./arrayCopy'),
     isIndex = require('./isIndex');
@@ -3439,7 +3424,7 @@ function reorder(array, indexes) {
 module.exports = reorder;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/reorder.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"./arrayCopy":22,"./isIndex":83,"buffer":203,"oMfpAn":208}],96:[function(require,module,exports){
+},{"./arrayCopy":20,"./isIndex":81,"buffer":201,"oMfpAn":206}],94:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /** Used as the internal argument placeholder. */
 var PLACEHOLDER = '__lodash_placeholder__';
@@ -3471,7 +3456,7 @@ function replaceHolders(array, placeholder) {
 module.exports = replaceHolders;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/replaceHolders.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"buffer":203,"oMfpAn":208}],97:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],95:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var baseSetData = require('./baseSetData'),
     now = require('../date/now');
@@ -3516,7 +3501,7 @@ var setData = (function() {
 module.exports = setData;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/setData.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"../date/now":16,"./baseSetData":52,"buffer":203,"oMfpAn":208}],98:[function(require,module,exports){
+},{"../date/now":14,"./baseSetData":50,"buffer":201,"oMfpAn":206}],96:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var isArguments = require('../lang/isArguments'),
     isArray = require('../lang/isArray'),
@@ -3561,7 +3546,7 @@ function shimKeys(object) {
 module.exports = shimKeys;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/shimKeys.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"../lang/isArguments":103,"../lang/isArray":104,"../object/keysIn":114,"./isIndex":83,"./isLength":87,"buffer":203,"oMfpAn":208}],99:[function(require,module,exports){
+},{"../lang/isArguments":101,"../lang/isArray":102,"../object/keysIn":112,"./isIndex":81,"./isLength":85,"buffer":201,"oMfpAn":206}],97:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var isArrayLike = require('./isArrayLike'),
     isObject = require('../lang/isObject'),
@@ -3587,7 +3572,7 @@ function toIterable(value) {
 module.exports = toIterable;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/toIterable.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"../lang/isObject":108,"../object/values":117,"./isArrayLike":82,"buffer":203,"oMfpAn":208}],100:[function(require,module,exports){
+},{"../lang/isObject":106,"../object/values":115,"./isArrayLike":80,"buffer":201,"oMfpAn":206}],98:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var isObject = require('../lang/isObject');
 
@@ -3605,7 +3590,7 @@ function toObject(value) {
 module.exports = toObject;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/toObject.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"../lang/isObject":108,"buffer":203,"oMfpAn":208}],101:[function(require,module,exports){
+},{"../lang/isObject":106,"buffer":201,"oMfpAn":206}],99:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var baseToString = require('./baseToString'),
     isArray = require('../lang/isArray');
@@ -3637,7 +3622,7 @@ function toPath(value) {
 module.exports = toPath;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/toPath.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"../lang/isArray":104,"./baseToString":55,"buffer":203,"oMfpAn":208}],102:[function(require,module,exports){
+},{"../lang/isArray":102,"./baseToString":53,"buffer":201,"oMfpAn":206}],100:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var LazyWrapper = require('./LazyWrapper'),
     LodashWrapper = require('./LodashWrapper'),
@@ -3659,7 +3644,7 @@ function wrapperClone(wrapper) {
 module.exports = wrapperClone;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/internal/wrapperClone.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/internal")
-},{"./LazyWrapper":19,"./LodashWrapper":20,"./arrayCopy":22,"buffer":203,"oMfpAn":208}],103:[function(require,module,exports){
+},{"./LazyWrapper":17,"./LodashWrapper":18,"./arrayCopy":20,"buffer":201,"oMfpAn":206}],101:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var isArrayLike = require('../internal/isArrayLike'),
     isObjectLike = require('../internal/isObjectLike');
@@ -3699,7 +3684,7 @@ function isArguments(value) {
 module.exports = isArguments;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/lang/isArguments.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/lang")
-},{"../internal/isArrayLike":82,"../internal/isObjectLike":88,"buffer":203,"oMfpAn":208}],104:[function(require,module,exports){
+},{"../internal/isArrayLike":80,"../internal/isObjectLike":86,"buffer":201,"oMfpAn":206}],102:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var getNative = require('../internal/getNative'),
     isLength = require('../internal/isLength'),
@@ -3743,7 +3728,7 @@ var isArray = nativeIsArray || function(value) {
 module.exports = isArray;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/lang/isArray.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/lang")
-},{"../internal/getNative":80,"../internal/isLength":87,"../internal/isObjectLike":88,"buffer":203,"oMfpAn":208}],105:[function(require,module,exports){
+},{"../internal/getNative":78,"../internal/isLength":85,"../internal/isObjectLike":86,"buffer":201,"oMfpAn":206}],103:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var isArguments = require('./isArguments'),
     isArray = require('./isArray'),
@@ -3794,7 +3779,7 @@ function isEmpty(value) {
 module.exports = isEmpty;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/lang/isEmpty.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/lang")
-},{"../internal/isArrayLike":82,"../internal/isObjectLike":88,"../object/keys":113,"./isArguments":103,"./isArray":104,"./isFunction":106,"./isString":109,"buffer":203,"oMfpAn":208}],106:[function(require,module,exports){
+},{"../internal/isArrayLike":80,"../internal/isObjectLike":86,"../object/keys":111,"./isArguments":101,"./isArray":102,"./isFunction":104,"./isString":107,"buffer":201,"oMfpAn":206}],104:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var baseIsFunction = require('../internal/baseIsFunction'),
     getNative = require('../internal/getNative');
@@ -3840,7 +3825,7 @@ var isFunction = !(baseIsFunction(/x/) || (Uint8Array && !baseIsFunction(Uint8Ar
 module.exports = isFunction;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/lang/isFunction.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/lang")
-},{"../internal/baseIsFunction":44,"../internal/getNative":80,"buffer":203,"oMfpAn":208}],107:[function(require,module,exports){
+},{"../internal/baseIsFunction":42,"../internal/getNative":78,"buffer":201,"oMfpAn":206}],105:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var escapeRegExp = require('../string/escapeRegExp'),
     isObjectLike = require('../internal/isObjectLike');
@@ -3901,7 +3886,7 @@ function isNative(value) {
 module.exports = isNative;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/lang/isNative.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/lang")
-},{"../internal/isObjectLike":88,"../string/escapeRegExp":118,"buffer":203,"oMfpAn":208}],108:[function(require,module,exports){
+},{"../internal/isObjectLike":86,"../string/escapeRegExp":116,"buffer":201,"oMfpAn":206}],106:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /**
  * Checks if `value` is the [language type](https://es5.github.io/#x8) of `Object`.
@@ -3933,7 +3918,7 @@ function isObject(value) {
 module.exports = isObject;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/lang/isObject.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/lang")
-},{"buffer":203,"oMfpAn":208}],109:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],107:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var isObjectLike = require('../internal/isObjectLike');
 
@@ -3972,7 +3957,7 @@ function isString(value) {
 module.exports = isString;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/lang/isString.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/lang")
-},{"../internal/isObjectLike":88,"buffer":203,"oMfpAn":208}],110:[function(require,module,exports){
+},{"../internal/isObjectLike":86,"buffer":201,"oMfpAn":206}],108:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var isLength = require('../internal/isLength'),
     isObjectLike = require('../internal/isObjectLike');
@@ -4050,7 +4035,7 @@ function isTypedArray(value) {
 module.exports = isTypedArray;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/lang/isTypedArray.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/lang")
-},{"../internal/isLength":87,"../internal/isObjectLike":88,"buffer":203,"oMfpAn":208}],111:[function(require,module,exports){
+},{"../internal/isLength":85,"../internal/isObjectLike":86,"buffer":201,"oMfpAn":206}],109:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /**
  * Checks if `value` is `undefined`.
@@ -4075,7 +4060,7 @@ function isUndefined(value) {
 module.exports = isUndefined;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/lang/isUndefined.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/lang")
-},{"buffer":203,"oMfpAn":208}],112:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],110:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var arraySum = require('../internal/arraySum'),
     baseCallback = require('../internal/baseCallback'),
@@ -4131,7 +4116,7 @@ function sum(collection, iteratee, thisArg) {
 module.exports = sum;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/math/sum.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/math")
-},{"../internal/arraySum":28,"../internal/baseCallback":29,"../internal/baseSum":54,"../internal/isIterateeCall":84,"../internal/toIterable":99,"../lang/isArray":104,"buffer":203,"oMfpAn":208}],113:[function(require,module,exports){
+},{"../internal/arraySum":26,"../internal/baseCallback":27,"../internal/baseSum":52,"../internal/isIterateeCall":82,"../internal/toIterable":97,"../lang/isArray":102,"buffer":201,"oMfpAn":206}],111:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var getNative = require('../internal/getNative'),
     isArrayLike = require('../internal/isArrayLike'),
@@ -4180,7 +4165,7 @@ var keys = !nativeKeys ? shimKeys : function(object) {
 module.exports = keys;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/object/keys.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/object")
-},{"../internal/getNative":80,"../internal/isArrayLike":82,"../internal/shimKeys":98,"../lang/isObject":108,"buffer":203,"oMfpAn":208}],114:[function(require,module,exports){
+},{"../internal/getNative":78,"../internal/isArrayLike":80,"../internal/shimKeys":96,"../lang/isObject":106,"buffer":201,"oMfpAn":206}],112:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var isArguments = require('../lang/isArguments'),
     isArray = require('../lang/isArray'),
@@ -4248,7 +4233,7 @@ function keysIn(object) {
 module.exports = keysIn;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/object/keysIn.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/object")
-},{"../internal/isIndex":83,"../internal/isLength":87,"../lang/isArguments":103,"../lang/isArray":104,"../lang/isObject":108,"buffer":203,"oMfpAn":208}],115:[function(require,module,exports){
+},{"../internal/isIndex":81,"../internal/isLength":85,"../lang/isArguments":101,"../lang/isArray":102,"../lang/isObject":106,"buffer":201,"oMfpAn":206}],113:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var arrayMap = require('../internal/arrayMap'),
     baseDifference = require('../internal/baseDifference'),
@@ -4299,7 +4284,7 @@ var omit = restParam(function(object, props) {
 module.exports = omit;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/object/omit.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/object")
-},{"../function/restParam":18,"../internal/arrayMap":25,"../internal/baseDifference":31,"../internal/baseFlatten":36,"../internal/bindCallback":57,"../internal/pickByArray":92,"../internal/pickByCallback":93,"./keysIn":114,"buffer":203,"oMfpAn":208}],116:[function(require,module,exports){
+},{"../function/restParam":16,"../internal/arrayMap":23,"../internal/baseDifference":29,"../internal/baseFlatten":34,"../internal/bindCallback":55,"../internal/pickByArray":90,"../internal/pickByCallback":91,"./keysIn":112,"buffer":201,"oMfpAn":206}],114:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var keys = require('./keys'),
     toObject = require('../internal/toObject');
@@ -4336,7 +4321,7 @@ function pairs(object) {
 module.exports = pairs;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/object/pairs.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/object")
-},{"../internal/toObject":100,"./keys":113,"buffer":203,"oMfpAn":208}],117:[function(require,module,exports){
+},{"../internal/toObject":98,"./keys":111,"buffer":201,"oMfpAn":206}],115:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var baseValues = require('../internal/baseValues'),
     keys = require('./keys');
@@ -4373,7 +4358,7 @@ function values(object) {
 module.exports = values;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/object/values.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/object")
-},{"../internal/baseValues":56,"./keys":113,"buffer":203,"oMfpAn":208}],118:[function(require,module,exports){
+},{"../internal/baseValues":54,"./keys":111,"buffer":201,"oMfpAn":206}],116:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var baseToString = require('../internal/baseToString');
 
@@ -4409,7 +4394,7 @@ function escapeRegExp(string) {
 module.exports = escapeRegExp;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/string/escapeRegExp.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/string")
-},{"../internal/baseToString":55,"buffer":203,"oMfpAn":208}],119:[function(require,module,exports){
+},{"../internal/baseToString":53,"buffer":201,"oMfpAn":206}],117:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /**
  * Creates a function that returns `value`.
@@ -4436,7 +4421,7 @@ function constant(value) {
 module.exports = constant;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/utility/constant.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/utility")
-},{"buffer":203,"oMfpAn":208}],120:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],118:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /**
  * This method returns the first argument provided to it.
@@ -4460,7 +4445,7 @@ function identity(value) {
 module.exports = identity;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/utility/identity.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/utility")
-},{"buffer":203,"oMfpAn":208}],121:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],119:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /**
  * A no-operation function that returns `undefined` regardless of the
@@ -4483,7 +4468,7 @@ function noop() {
 module.exports = noop;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/utility/noop.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/utility")
-},{"buffer":203,"oMfpAn":208}],122:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],120:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var baseProperty = require('../internal/baseProperty'),
     basePropertyDeep = require('../internal/basePropertyDeep'),
@@ -4518,7 +4503,7 @@ function property(path) {
 module.exports = property;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/node_modules/lodash/utility/property.js","/../../node_modules/algoliasearch-helper/node_modules/lodash/utility")
-},{"../internal/baseProperty":49,"../internal/basePropertyDeep":50,"../internal/isKey":85,"buffer":203,"oMfpAn":208}],123:[function(require,module,exports){
+},{"../internal/baseProperty":47,"../internal/basePropertyDeep":48,"../internal/isKey":83,"buffer":201,"oMfpAn":206}],121:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /**
  * Functions to manipulate refinement lists
@@ -4652,7 +4637,7 @@ var lib = {
 module.exports = lib;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/src/SearchParameters/RefinementList.js","/../../node_modules/algoliasearch-helper/src/SearchParameters")
-},{"../functions/extend":128,"buffer":203,"lodash/collection/filter":11,"lodash/collection/reduce":14,"lodash/lang/isEmpty":105,"lodash/lang/isFunction":106,"lodash/lang/isString":109,"lodash/lang/isUndefined":111,"lodash/object/omit":115,"oMfpAn":208}],124:[function(require,module,exports){
+},{"../functions/extend":126,"buffer":201,"lodash/collection/filter":9,"lodash/collection/reduce":12,"lodash/lang/isEmpty":103,"lodash/lang/isFunction":104,"lodash/lang/isString":107,"lodash/lang/isUndefined":109,"lodash/object/omit":113,"oMfpAn":206}],122:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 "use strict";
 var keys = require( "lodash/object/keys" );
@@ -5510,7 +5495,7 @@ SearchParameters.prototype = {
 module.exports = SearchParameters;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/src/SearchParameters/index.js","/../../node_modules/algoliasearch-helper/src/SearchParameters")
-},{"../functions/deepFreeze":127,"../functions/extend":128,"./RefinementList":123,"buffer":203,"lodash/array/intersection":8,"lodash/collection/filter":11,"lodash/collection/forEach":13,"lodash/collection/reduce":14,"lodash/lang/isEmpty":105,"lodash/lang/isFunction":106,"lodash/lang/isString":109,"lodash/lang/isUndefined":111,"lodash/object/keys":113,"lodash/object/omit":115,"oMfpAn":208}],125:[function(require,module,exports){
+},{"../functions/deepFreeze":125,"../functions/extend":126,"./RefinementList":121,"buffer":201,"lodash/array/intersection":6,"lodash/collection/filter":9,"lodash/collection/forEach":11,"lodash/collection/reduce":12,"lodash/lang/isEmpty":103,"lodash/lang/isFunction":104,"lodash/lang/isString":107,"lodash/lang/isUndefined":109,"lodash/object/keys":111,"lodash/object/omit":113,"oMfpAn":206}],123:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 "use strict";
 var forEach = require( "lodash/collection/forEach" );
@@ -5694,7 +5679,7 @@ SearchResults.prototype.getFacetByName = function( name ) {
 module.exports = SearchResults;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/src/SearchResults/index.js","/../../node_modules/algoliasearch-helper/src/SearchResults")
-},{"../functions/extend":128,"buffer":203,"lodash/array/compact":7,"lodash/collection/find":12,"lodash/collection/forEach":13,"lodash/collection/sum":15,"oMfpAn":208}],126:[function(require,module,exports){
+},{"../functions/extend":126,"buffer":201,"lodash/array/compact":5,"lodash/collection/find":10,"lodash/collection/forEach":11,"lodash/collection/sum":13,"oMfpAn":206}],124:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 "use strict";
 var SearchParameters = require( "./SearchParameters" );
@@ -6381,7 +6366,7 @@ AlgoliaSearchHelper.prototype._change = function() {
 module.exports = AlgoliaSearchHelper;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/src/algoliasearch.helper.js","/../../node_modules/algoliasearch-helper/src")
-},{"./SearchParameters":124,"./SearchResults":125,"./functions/extend":128,"buffer":203,"events":206,"lodash/collection/forEach":13,"lodash/function/bind":17,"oMfpAn":208,"util":213}],127:[function(require,module,exports){
+},{"./SearchParameters":122,"./SearchResults":123,"./functions/extend":126,"buffer":201,"events":204,"lodash/collection/forEach":11,"lodash/function/bind":15,"oMfpAn":206,"util":211}],125:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 "use strict";
 var isObject = require( "lodash/lang/isObject" );
@@ -6406,7 +6391,7 @@ var deepFreeze = function( obj ) {
 module.exports = deepFreeze;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/src/functions/deepFreeze.js","/../../node_modules/algoliasearch-helper/src/functions")
-},{"buffer":203,"lodash/collection/forEach":13,"lodash/lang/isObject":108,"oMfpAn":208}],128:[function(require,module,exports){
+},{"buffer":201,"lodash/collection/forEach":11,"lodash/lang/isObject":106,"oMfpAn":206}],126:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 "use strict";
 module.exports = function extend( out ) {
@@ -6425,7 +6410,7 @@ module.exports = function extend( out ) {
 };
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch-helper/src/functions/extend.js","/../../node_modules/algoliasearch-helper/src/functions")
-},{"buffer":203,"oMfpAn":208}],129:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],127:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 
 /**
@@ -6597,7 +6582,7 @@ function localstorage(){
 }
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/node_modules/debug-ms-fix-yui-compressor/browser.js","/../../node_modules/algoliasearch/node_modules/debug-ms-fix-yui-compressor")
-},{"./debug":130,"buffer":203,"oMfpAn":208}],130:[function(require,module,exports){
+},{"./debug":128,"buffer":201,"oMfpAn":206}],128:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 
 /**
@@ -6798,7 +6783,7 @@ function coerce(val) {
 }
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/node_modules/debug-ms-fix-yui-compressor/debug.js","/../../node_modules/algoliasearch/node_modules/debug-ms-fix-yui-compressor")
-},{"buffer":203,"ms":131,"oMfpAn":208}],131:[function(require,module,exports){
+},{"buffer":201,"ms":129,"oMfpAn":206}],129:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /**
  * Helpers.
@@ -6931,7 +6916,7 @@ function plural(ms, n, name) {
 }
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/node_modules/debug-ms-fix-yui-compressor/node_modules/ms/index.js","/../../node_modules/algoliasearch/node_modules/debug-ms-fix-yui-compressor/node_modules/ms")
-},{"buffer":203,"oMfpAn":208}],132:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],130:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /*!
  * @overview es6-promise - a tiny implementation of Promises/A+.
@@ -7892,7 +7877,7 @@ function plural(ms, n, name) {
 
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/node_modules/es6-promise/dist/es6-promise.js","/../../node_modules/algoliasearch/node_modules/es6-promise/dist")
-},{"buffer":203,"oMfpAn":208}],133:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],131:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
@@ -7919,7 +7904,7 @@ if (typeof Object.create === 'function') {
 }
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/node_modules/inherits/inherits_browser.js","/../../node_modules/algoliasearch/node_modules/inherits")
-},{"buffer":203,"oMfpAn":208}],134:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],132:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var arrayEach = require('../internal/arrayEach'),
     baseEach = require('../internal/baseEach'),
@@ -7960,7 +7945,7 @@ var forEach = createForEach(arrayEach, baseEach);
 module.exports = forEach;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/node_modules/lodash-compat/collection/forEach.js","/../../node_modules/algoliasearch/node_modules/lodash-compat/collection")
-},{"../internal/arrayEach":137,"../internal/baseEach":141,"../internal/createForEach":155,"buffer":203,"oMfpAn":208}],135:[function(require,module,exports){
+},{"../internal/arrayEach":135,"../internal/baseEach":139,"../internal/createForEach":153,"buffer":201,"oMfpAn":206}],133:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /** Used as the `TypeError` message for "Functions" methods. */
 var FUNC_ERROR_TEXT = 'Expected a function';
@@ -8022,7 +8007,7 @@ function restParam(func, start) {
 module.exports = restParam;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/node_modules/lodash-compat/function/restParam.js","/../../node_modules/algoliasearch/node_modules/lodash-compat/function")
-},{"buffer":203,"oMfpAn":208}],136:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],134:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /**
  * Copies the values of `source` to `array`.
@@ -8046,7 +8031,7 @@ function arrayCopy(source, array) {
 module.exports = arrayCopy;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/node_modules/lodash-compat/internal/arrayCopy.js","/../../node_modules/algoliasearch/node_modules/lodash-compat/internal")
-},{"buffer":203,"oMfpAn":208}],137:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],135:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /**
  * A specialized version of `_.forEach` for arrays without support for callback
@@ -8072,7 +8057,7 @@ function arrayEach(array, iteratee) {
 module.exports = arrayEach;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/node_modules/lodash-compat/internal/arrayEach.js","/../../node_modules/algoliasearch/node_modules/lodash-compat/internal")
-},{"buffer":203,"oMfpAn":208}],138:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],136:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var baseCopy = require('./baseCopy'),
     keys = require('../object/keys');
@@ -8095,7 +8080,7 @@ function baseAssign(object, source) {
 module.exports = baseAssign;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/node_modules/lodash-compat/internal/baseAssign.js","/../../node_modules/algoliasearch/node_modules/lodash-compat/internal")
-},{"../object/keys":181,"./baseCopy":140,"buffer":203,"oMfpAn":208}],139:[function(require,module,exports){
+},{"../object/keys":179,"./baseCopy":138,"buffer":201,"oMfpAn":206}],137:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var arrayCopy = require('./arrayCopy'),
     arrayEach = require('./arrayEach'),
@@ -8231,7 +8216,7 @@ function baseClone(value, isDeep, customizer, key, object, stackA, stackB) {
 module.exports = baseClone;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/node_modules/lodash-compat/internal/baseClone.js","/../../node_modules/algoliasearch/node_modules/lodash-compat/internal")
-},{"../lang/isArray":173,"../lang/isObject":176,"./arrayCopy":136,"./arrayEach":137,"./baseAssign":138,"./baseForOwn":144,"./initCloneArray":158,"./initCloneByTag":159,"./initCloneObject":160,"./isHostObject":162,"buffer":203,"oMfpAn":208}],140:[function(require,module,exports){
+},{"../lang/isArray":171,"../lang/isObject":174,"./arrayCopy":134,"./arrayEach":135,"./baseAssign":136,"./baseForOwn":142,"./initCloneArray":156,"./initCloneByTag":157,"./initCloneObject":158,"./isHostObject":160,"buffer":201,"oMfpAn":206}],138:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /**
  * Copies properties of `source` to `object`.
@@ -8258,7 +8243,7 @@ function baseCopy(source, props, object) {
 module.exports = baseCopy;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/node_modules/lodash-compat/internal/baseCopy.js","/../../node_modules/algoliasearch/node_modules/lodash-compat/internal")
-},{"buffer":203,"oMfpAn":208}],141:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],139:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var baseForOwn = require('./baseForOwn'),
     createBaseEach = require('./createBaseEach');
@@ -8277,7 +8262,7 @@ var baseEach = createBaseEach(baseForOwn);
 module.exports = baseEach;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/node_modules/lodash-compat/internal/baseEach.js","/../../node_modules/algoliasearch/node_modules/lodash-compat/internal")
-},{"./baseForOwn":144,"./createBaseEach":153,"buffer":203,"oMfpAn":208}],142:[function(require,module,exports){
+},{"./baseForOwn":142,"./createBaseEach":151,"buffer":201,"oMfpAn":206}],140:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var createBaseFor = require('./createBaseFor');
 
@@ -8298,7 +8283,7 @@ var baseFor = createBaseFor();
 module.exports = baseFor;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/node_modules/lodash-compat/internal/baseFor.js","/../../node_modules/algoliasearch/node_modules/lodash-compat/internal")
-},{"./createBaseFor":154,"buffer":203,"oMfpAn":208}],143:[function(require,module,exports){
+},{"./createBaseFor":152,"buffer":201,"oMfpAn":206}],141:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var baseFor = require('./baseFor'),
     keysIn = require('../object/keysIn');
@@ -8319,7 +8304,7 @@ function baseForIn(object, iteratee) {
 module.exports = baseForIn;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/node_modules/lodash-compat/internal/baseForIn.js","/../../node_modules/algoliasearch/node_modules/lodash-compat/internal")
-},{"../object/keysIn":182,"./baseFor":142,"buffer":203,"oMfpAn":208}],144:[function(require,module,exports){
+},{"../object/keysIn":180,"./baseFor":140,"buffer":201,"oMfpAn":206}],142:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var baseFor = require('./baseFor'),
     keys = require('../object/keys');
@@ -8340,7 +8325,7 @@ function baseForOwn(object, iteratee) {
 module.exports = baseForOwn;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/node_modules/lodash-compat/internal/baseForOwn.js","/../../node_modules/algoliasearch/node_modules/lodash-compat/internal")
-},{"../object/keys":181,"./baseFor":142,"buffer":203,"oMfpAn":208}],145:[function(require,module,exports){
+},{"../object/keys":179,"./baseFor":140,"buffer":201,"oMfpAn":206}],143:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /**
  * The base implementation of `_.isFunction` without support for environments
@@ -8359,7 +8344,7 @@ function baseIsFunction(value) {
 module.exports = baseIsFunction;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/node_modules/lodash-compat/internal/baseIsFunction.js","/../../node_modules/algoliasearch/node_modules/lodash-compat/internal")
-},{"buffer":203,"oMfpAn":208}],146:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],144:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var arrayEach = require('./arrayEach'),
     baseMergeDeep = require('./baseMergeDeep'),
@@ -8419,7 +8404,7 @@ function baseMerge(object, source, customizer, stackA, stackB) {
 module.exports = baseMerge;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/node_modules/lodash-compat/internal/baseMerge.js","/../../node_modules/algoliasearch/node_modules/lodash-compat/internal")
-},{"../lang/isArray":173,"../lang/isObject":176,"../lang/isTypedArray":179,"../object/keys":181,"./arrayEach":137,"./baseMergeDeep":147,"./isArrayLike":161,"./isObjectLike":166,"buffer":203,"oMfpAn":208}],147:[function(require,module,exports){
+},{"../lang/isArray":171,"../lang/isObject":174,"../lang/isTypedArray":177,"../object/keys":179,"./arrayEach":135,"./baseMergeDeep":145,"./isArrayLike":159,"./isObjectLike":164,"buffer":201,"oMfpAn":206}],145:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var arrayCopy = require('./arrayCopy'),
     isArguments = require('../lang/isArguments'),
@@ -8490,7 +8475,7 @@ function baseMergeDeep(object, source, key, mergeFunc, customizer, stackA, stack
 module.exports = baseMergeDeep;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/node_modules/lodash-compat/internal/baseMergeDeep.js","/../../node_modules/algoliasearch/node_modules/lodash-compat/internal")
-},{"../lang/isArguments":172,"../lang/isArray":173,"../lang/isPlainObject":177,"../lang/isTypedArray":179,"../lang/toPlainObject":180,"./arrayCopy":136,"./isArrayLike":161,"buffer":203,"oMfpAn":208}],148:[function(require,module,exports){
+},{"../lang/isArguments":170,"../lang/isArray":171,"../lang/isPlainObject":175,"../lang/isTypedArray":177,"../lang/toPlainObject":178,"./arrayCopy":134,"./isArrayLike":159,"buffer":201,"oMfpAn":206}],146:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var toObject = require('./toObject');
 
@@ -8510,7 +8495,7 @@ function baseProperty(key) {
 module.exports = baseProperty;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/node_modules/lodash-compat/internal/baseProperty.js","/../../node_modules/algoliasearch/node_modules/lodash-compat/internal")
-},{"./toObject":169,"buffer":203,"oMfpAn":208}],149:[function(require,module,exports){
+},{"./toObject":167,"buffer":201,"oMfpAn":206}],147:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /**
  * Converts `value` to a string if it's not one. An empty string is returned
@@ -8530,7 +8515,7 @@ function baseToString(value) {
 module.exports = baseToString;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/node_modules/lodash-compat/internal/baseToString.js","/../../node_modules/algoliasearch/node_modules/lodash-compat/internal")
-},{"buffer":203,"oMfpAn":208}],150:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],148:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var identity = require('../utility/identity');
 
@@ -8573,7 +8558,7 @@ function bindCallback(func, thisArg, argCount) {
 module.exports = bindCallback;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/node_modules/lodash-compat/internal/bindCallback.js","/../../node_modules/algoliasearch/node_modules/lodash-compat/internal")
-},{"../utility/identity":187,"buffer":203,"oMfpAn":208}],151:[function(require,module,exports){
+},{"../utility/identity":185,"buffer":201,"oMfpAn":206}],149:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var constant = require('../utility/constant'),
     getNative = require('./getNative');
@@ -8632,7 +8617,7 @@ if (!bufferSlice) {
 module.exports = bufferClone;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/node_modules/lodash-compat/internal/bufferClone.js","/../../node_modules/algoliasearch/node_modules/lodash-compat/internal")
-},{"../utility/constant":186,"./getNative":157,"buffer":203,"oMfpAn":208}],152:[function(require,module,exports){
+},{"../utility/constant":184,"./getNative":155,"buffer":201,"oMfpAn":206}],150:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var bindCallback = require('./bindCallback'),
     isIterateeCall = require('./isIterateeCall'),
@@ -8680,7 +8665,7 @@ function createAssigner(assigner) {
 module.exports = createAssigner;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/node_modules/lodash-compat/internal/createAssigner.js","/../../node_modules/algoliasearch/node_modules/lodash-compat/internal")
-},{"../function/restParam":135,"./bindCallback":150,"./isIterateeCall":164,"buffer":203,"oMfpAn":208}],153:[function(require,module,exports){
+},{"../function/restParam":133,"./bindCallback":148,"./isIterateeCall":162,"buffer":201,"oMfpAn":206}],151:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var getLength = require('./getLength'),
     isLength = require('./isLength'),
@@ -8715,7 +8700,7 @@ function createBaseEach(eachFunc, fromRight) {
 module.exports = createBaseEach;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/node_modules/lodash-compat/internal/createBaseEach.js","/../../node_modules/algoliasearch/node_modules/lodash-compat/internal")
-},{"./getLength":156,"./isLength":165,"./toObject":169,"buffer":203,"oMfpAn":208}],154:[function(require,module,exports){
+},{"./getLength":154,"./isLength":163,"./toObject":167,"buffer":201,"oMfpAn":206}],152:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var toObject = require('./toObject');
 
@@ -8746,7 +8731,7 @@ function createBaseFor(fromRight) {
 module.exports = createBaseFor;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/node_modules/lodash-compat/internal/createBaseFor.js","/../../node_modules/algoliasearch/node_modules/lodash-compat/internal")
-},{"./toObject":169,"buffer":203,"oMfpAn":208}],155:[function(require,module,exports){
+},{"./toObject":167,"buffer":201,"oMfpAn":206}],153:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var bindCallback = require('./bindCallback'),
     isArray = require('../lang/isArray');
@@ -8770,7 +8755,7 @@ function createForEach(arrayFunc, eachFunc) {
 module.exports = createForEach;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/node_modules/lodash-compat/internal/createForEach.js","/../../node_modules/algoliasearch/node_modules/lodash-compat/internal")
-},{"../lang/isArray":173,"./bindCallback":150,"buffer":203,"oMfpAn":208}],156:[function(require,module,exports){
+},{"../lang/isArray":171,"./bindCallback":148,"buffer":201,"oMfpAn":206}],154:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var baseProperty = require('./baseProperty');
 
@@ -8789,7 +8774,7 @@ var getLength = baseProperty('length');
 module.exports = getLength;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/node_modules/lodash-compat/internal/getLength.js","/../../node_modules/algoliasearch/node_modules/lodash-compat/internal")
-},{"./baseProperty":148,"buffer":203,"oMfpAn":208}],157:[function(require,module,exports){
+},{"./baseProperty":146,"buffer":201,"oMfpAn":206}],155:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var isNative = require('../lang/isNative');
 
@@ -8809,7 +8794,7 @@ function getNative(object, key) {
 module.exports = getNative;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/node_modules/lodash-compat/internal/getNative.js","/../../node_modules/algoliasearch/node_modules/lodash-compat/internal")
-},{"../lang/isNative":175,"buffer":203,"oMfpAn":208}],158:[function(require,module,exports){
+},{"../lang/isNative":173,"buffer":201,"oMfpAn":206}],156:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /** Used for native method references. */
 var objectProto = Object.prototype;
@@ -8839,7 +8824,7 @@ function initCloneArray(array) {
 module.exports = initCloneArray;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/node_modules/lodash-compat/internal/initCloneArray.js","/../../node_modules/algoliasearch/node_modules/lodash-compat/internal")
-},{"buffer":203,"oMfpAn":208}],159:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],157:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var bufferClone = require('./bufferClone');
 
@@ -8922,7 +8907,7 @@ function initCloneByTag(object, tag, isDeep) {
 module.exports = initCloneByTag;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/node_modules/lodash-compat/internal/initCloneByTag.js","/../../node_modules/algoliasearch/node_modules/lodash-compat/internal")
-},{"./bufferClone":151,"buffer":203,"oMfpAn":208}],160:[function(require,module,exports){
+},{"./bufferClone":149,"buffer":201,"oMfpAn":206}],158:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /**
  * Initializes an object clone.
@@ -8942,7 +8927,7 @@ function initCloneObject(object) {
 module.exports = initCloneObject;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/node_modules/lodash-compat/internal/initCloneObject.js","/../../node_modules/algoliasearch/node_modules/lodash-compat/internal")
-},{"buffer":203,"oMfpAn":208}],161:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],159:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var getLength = require('./getLength'),
     isLength = require('./isLength');
@@ -8961,7 +8946,7 @@ function isArrayLike(value) {
 module.exports = isArrayLike;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/node_modules/lodash-compat/internal/isArrayLike.js","/../../node_modules/algoliasearch/node_modules/lodash-compat/internal")
-},{"./getLength":156,"./isLength":165,"buffer":203,"oMfpAn":208}],162:[function(require,module,exports){
+},{"./getLength":154,"./isLength":163,"buffer":201,"oMfpAn":206}],160:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /**
  * Checks if `value` is a host object in IE < 9.
@@ -8986,7 +8971,7 @@ var isHostObject = (function() {
 module.exports = isHostObject;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/node_modules/lodash-compat/internal/isHostObject.js","/../../node_modules/algoliasearch/node_modules/lodash-compat/internal")
-},{"buffer":203,"oMfpAn":208}],163:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],161:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /** Used to detect unsigned integer values. */
 var reIsUint = /^\d+$/;
@@ -9014,7 +8999,7 @@ function isIndex(value, length) {
 module.exports = isIndex;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/node_modules/lodash-compat/internal/isIndex.js","/../../node_modules/algoliasearch/node_modules/lodash-compat/internal")
-},{"buffer":203,"oMfpAn":208}],164:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],162:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var isArrayLike = require('./isArrayLike'),
     isIndex = require('./isIndex'),
@@ -9046,7 +9031,7 @@ function isIterateeCall(value, index, object) {
 module.exports = isIterateeCall;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/node_modules/lodash-compat/internal/isIterateeCall.js","/../../node_modules/algoliasearch/node_modules/lodash-compat/internal")
-},{"../lang/isObject":176,"./isArrayLike":161,"./isIndex":163,"buffer":203,"oMfpAn":208}],165:[function(require,module,exports){
+},{"../lang/isObject":174,"./isArrayLike":159,"./isIndex":161,"buffer":201,"oMfpAn":206}],163:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /**
  * Used as the [maximum length](https://people.mozilla.org/~jorendorff/es6-draft.html#sec-number.max_safe_integer)
@@ -9070,7 +9055,7 @@ function isLength(value) {
 module.exports = isLength;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/node_modules/lodash-compat/internal/isLength.js","/../../node_modules/algoliasearch/node_modules/lodash-compat/internal")
-},{"buffer":203,"oMfpAn":208}],166:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],164:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /**
  * Checks if `value` is object-like.
@@ -9086,7 +9071,7 @@ function isObjectLike(value) {
 module.exports = isObjectLike;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/node_modules/lodash-compat/internal/isObjectLike.js","/../../node_modules/algoliasearch/node_modules/lodash-compat/internal")
-},{"buffer":203,"oMfpAn":208}],167:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],165:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var baseForIn = require('./baseForIn'),
     isArguments = require('../lang/isArguments'),
@@ -9151,7 +9136,7 @@ function shimIsPlainObject(value) {
 module.exports = shimIsPlainObject;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/node_modules/lodash-compat/internal/shimIsPlainObject.js","/../../node_modules/algoliasearch/node_modules/lodash-compat/internal")
-},{"../lang/isArguments":172,"../support":185,"./baseForIn":143,"./isHostObject":162,"./isObjectLike":166,"buffer":203,"oMfpAn":208}],168:[function(require,module,exports){
+},{"../lang/isArguments":170,"../support":183,"./baseForIn":141,"./isHostObject":160,"./isObjectLike":164,"buffer":201,"oMfpAn":206}],166:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var isArguments = require('../lang/isArguments'),
     isArray = require('../lang/isArray'),
@@ -9197,7 +9182,7 @@ function shimKeys(object) {
 module.exports = shimKeys;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/node_modules/lodash-compat/internal/shimKeys.js","/../../node_modules/algoliasearch/node_modules/lodash-compat/internal")
-},{"../lang/isArguments":172,"../lang/isArray":173,"../lang/isString":178,"../object/keysIn":182,"./isIndex":163,"./isLength":165,"buffer":203,"oMfpAn":208}],169:[function(require,module,exports){
+},{"../lang/isArguments":170,"../lang/isArray":171,"../lang/isString":176,"../object/keysIn":180,"./isIndex":161,"./isLength":163,"buffer":201,"oMfpAn":206}],167:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var isObject = require('../lang/isObject'),
     isString = require('../lang/isString'),
@@ -9227,7 +9212,7 @@ function toObject(value) {
 module.exports = toObject;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/node_modules/lodash-compat/internal/toObject.js","/../../node_modules/algoliasearch/node_modules/lodash-compat/internal")
-},{"../lang/isObject":176,"../lang/isString":178,"../support":185,"buffer":203,"oMfpAn":208}],170:[function(require,module,exports){
+},{"../lang/isObject":174,"../lang/isString":176,"../support":183,"buffer":201,"oMfpAn":206}],168:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var baseClone = require('../internal/baseClone'),
     bindCallback = require('../internal/bindCallback'),
@@ -9301,7 +9286,7 @@ function clone(value, isDeep, customizer, thisArg) {
 module.exports = clone;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/node_modules/lodash-compat/lang/clone.js","/../../node_modules/algoliasearch/node_modules/lodash-compat/lang")
-},{"../internal/baseClone":139,"../internal/bindCallback":150,"../internal/isIterateeCall":164,"buffer":203,"oMfpAn":208}],171:[function(require,module,exports){
+},{"../internal/baseClone":137,"../internal/bindCallback":148,"../internal/isIterateeCall":162,"buffer":201,"oMfpAn":206}],169:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var baseClone = require('../internal/baseClone'),
     bindCallback = require('../internal/bindCallback');
@@ -9360,7 +9345,7 @@ function cloneDeep(value, customizer, thisArg) {
 module.exports = cloneDeep;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/node_modules/lodash-compat/lang/cloneDeep.js","/../../node_modules/algoliasearch/node_modules/lodash-compat/lang")
-},{"../internal/baseClone":139,"../internal/bindCallback":150,"buffer":203,"oMfpAn":208}],172:[function(require,module,exports){
+},{"../internal/baseClone":137,"../internal/bindCallback":148,"buffer":201,"oMfpAn":206}],170:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var isArrayLike = require('../internal/isArrayLike'),
     isObjectLike = require('../internal/isObjectLike'),
@@ -9414,7 +9399,7 @@ if (!support.argsTag) {
 module.exports = isArguments;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/node_modules/lodash-compat/lang/isArguments.js","/../../node_modules/algoliasearch/node_modules/lodash-compat/lang")
-},{"../internal/isArrayLike":161,"../internal/isObjectLike":166,"../support":185,"buffer":203,"oMfpAn":208}],173:[function(require,module,exports){
+},{"../internal/isArrayLike":159,"../internal/isObjectLike":164,"../support":183,"buffer":201,"oMfpAn":206}],171:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var getNative = require('../internal/getNative'),
     isLength = require('../internal/isLength'),
@@ -9458,7 +9443,7 @@ var isArray = nativeIsArray || function(value) {
 module.exports = isArray;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/node_modules/lodash-compat/lang/isArray.js","/../../node_modules/algoliasearch/node_modules/lodash-compat/lang")
-},{"../internal/getNative":157,"../internal/isLength":165,"../internal/isObjectLike":166,"buffer":203,"oMfpAn":208}],174:[function(require,module,exports){
+},{"../internal/getNative":155,"../internal/isLength":163,"../internal/isObjectLike":164,"buffer":201,"oMfpAn":206}],172:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var baseIsFunction = require('../internal/baseIsFunction'),
     getNative = require('../internal/getNative');
@@ -9504,7 +9489,7 @@ var isFunction = !(baseIsFunction(/x/) || (Uint8Array && !baseIsFunction(Uint8Ar
 module.exports = isFunction;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/node_modules/lodash-compat/lang/isFunction.js","/../../node_modules/algoliasearch/node_modules/lodash-compat/lang")
-},{"../internal/baseIsFunction":145,"../internal/getNative":157,"buffer":203,"oMfpAn":208}],175:[function(require,module,exports){
+},{"../internal/baseIsFunction":143,"../internal/getNative":155,"buffer":201,"oMfpAn":206}],173:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var escapeRegExp = require('../string/escapeRegExp'),
     isHostObject = require('../internal/isHostObject'),
@@ -9566,7 +9551,7 @@ function isNative(value) {
 module.exports = isNative;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/node_modules/lodash-compat/lang/isNative.js","/../../node_modules/algoliasearch/node_modules/lodash-compat/lang")
-},{"../internal/isHostObject":162,"../internal/isObjectLike":166,"../string/escapeRegExp":184,"buffer":203,"oMfpAn":208}],176:[function(require,module,exports){
+},{"../internal/isHostObject":160,"../internal/isObjectLike":164,"../string/escapeRegExp":182,"buffer":201,"oMfpAn":206}],174:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /**
  * Checks if `value` is the [language type](https://es5.github.io/#x8) of `Object`.
@@ -9598,7 +9583,7 @@ function isObject(value) {
 module.exports = isObject;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/node_modules/lodash-compat/lang/isObject.js","/../../node_modules/algoliasearch/node_modules/lodash-compat/lang")
-},{"buffer":203,"oMfpAn":208}],177:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],175:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var getNative = require('../internal/getNative'),
     isArguments = require('./isArguments'),
@@ -9665,7 +9650,7 @@ var isPlainObject = !getPrototypeOf ? shimIsPlainObject : function(value) {
 module.exports = isPlainObject;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/node_modules/lodash-compat/lang/isPlainObject.js","/../../node_modules/algoliasearch/node_modules/lodash-compat/lang")
-},{"../internal/getNative":157,"../internal/shimIsPlainObject":167,"../support":185,"./isArguments":172,"buffer":203,"oMfpAn":208}],178:[function(require,module,exports){
+},{"../internal/getNative":155,"../internal/shimIsPlainObject":165,"../support":183,"./isArguments":170,"buffer":201,"oMfpAn":206}],176:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var isObjectLike = require('../internal/isObjectLike');
 
@@ -9704,7 +9689,7 @@ function isString(value) {
 module.exports = isString;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/node_modules/lodash-compat/lang/isString.js","/../../node_modules/algoliasearch/node_modules/lodash-compat/lang")
-},{"../internal/isObjectLike":166,"buffer":203,"oMfpAn":208}],179:[function(require,module,exports){
+},{"../internal/isObjectLike":164,"buffer":201,"oMfpAn":206}],177:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var isLength = require('../internal/isLength'),
     isObjectLike = require('../internal/isObjectLike');
@@ -9782,7 +9767,7 @@ function isTypedArray(value) {
 module.exports = isTypedArray;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/node_modules/lodash-compat/lang/isTypedArray.js","/../../node_modules/algoliasearch/node_modules/lodash-compat/lang")
-},{"../internal/isLength":165,"../internal/isObjectLike":166,"buffer":203,"oMfpAn":208}],180:[function(require,module,exports){
+},{"../internal/isLength":163,"../internal/isObjectLike":164,"buffer":201,"oMfpAn":206}],178:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var baseCopy = require('../internal/baseCopy'),
     keysIn = require('../object/keysIn');
@@ -9817,7 +9802,7 @@ function toPlainObject(value) {
 module.exports = toPlainObject;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/node_modules/lodash-compat/lang/toPlainObject.js","/../../node_modules/algoliasearch/node_modules/lodash-compat/lang")
-},{"../internal/baseCopy":140,"../object/keysIn":182,"buffer":203,"oMfpAn":208}],181:[function(require,module,exports){
+},{"../internal/baseCopy":138,"../object/keysIn":180,"buffer":201,"oMfpAn":206}],179:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var getNative = require('../internal/getNative'),
     isArrayLike = require('../internal/isArrayLike'),
@@ -9867,7 +9852,7 @@ var keys = !nativeKeys ? shimKeys : function(object) {
 module.exports = keys;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/node_modules/lodash-compat/object/keys.js","/../../node_modules/algoliasearch/node_modules/lodash-compat/object")
-},{"../internal/getNative":157,"../internal/isArrayLike":161,"../internal/shimKeys":168,"../lang/isObject":176,"../support":185,"buffer":203,"oMfpAn":208}],182:[function(require,module,exports){
+},{"../internal/getNative":155,"../internal/isArrayLike":159,"../internal/shimKeys":166,"../lang/isObject":174,"../support":183,"buffer":201,"oMfpAn":206}],180:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var arrayEach = require('../internal/arrayEach'),
     isArguments = require('../lang/isArguments'),
@@ -10007,7 +9992,7 @@ function keysIn(object) {
 module.exports = keysIn;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/node_modules/lodash-compat/object/keysIn.js","/../../node_modules/algoliasearch/node_modules/lodash-compat/object")
-},{"../internal/arrayEach":137,"../internal/isIndex":163,"../internal/isLength":165,"../lang/isArguments":172,"../lang/isArray":173,"../lang/isFunction":174,"../lang/isObject":176,"../lang/isString":178,"../support":185,"buffer":203,"oMfpAn":208}],183:[function(require,module,exports){
+},{"../internal/arrayEach":135,"../internal/isIndex":161,"../internal/isLength":163,"../lang/isArguments":170,"../lang/isArray":171,"../lang/isFunction":172,"../lang/isObject":174,"../lang/isString":176,"../support":183,"buffer":201,"oMfpAn":206}],181:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var baseMerge = require('../internal/baseMerge'),
     createAssigner = require('../internal/createAssigner');
@@ -10065,7 +10050,7 @@ var merge = createAssigner(baseMerge);
 module.exports = merge;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/node_modules/lodash-compat/object/merge.js","/../../node_modules/algoliasearch/node_modules/lodash-compat/object")
-},{"../internal/baseMerge":146,"../internal/createAssigner":152,"buffer":203,"oMfpAn":208}],184:[function(require,module,exports){
+},{"../internal/baseMerge":144,"../internal/createAssigner":150,"buffer":201,"oMfpAn":206}],182:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var baseToString = require('../internal/baseToString');
 
@@ -10101,7 +10086,7 @@ function escapeRegExp(string) {
 module.exports = escapeRegExp;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/node_modules/lodash-compat/string/escapeRegExp.js","/../../node_modules/algoliasearch/node_modules/lodash-compat/string")
-},{"../internal/baseToString":149,"buffer":203,"oMfpAn":208}],185:[function(require,module,exports){
+},{"../internal/baseToString":147,"buffer":201,"oMfpAn":206}],183:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /** `Object#toString` result references. */
 var argsTag = '[object Arguments]',
@@ -10243,7 +10228,7 @@ var support = {};
 module.exports = support;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/node_modules/lodash-compat/support.js","/../../node_modules/algoliasearch/node_modules/lodash-compat")
-},{"buffer":203,"oMfpAn":208}],186:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],184:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /**
  * Creates a function that returns `value`.
@@ -10270,7 +10255,7 @@ function constant(value) {
 module.exports = constant;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/node_modules/lodash-compat/utility/constant.js","/../../node_modules/algoliasearch/node_modules/lodash-compat/utility")
-},{"buffer":203,"oMfpAn":208}],187:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],185:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /**
  * This method returns the first argument provided to it.
@@ -10294,7 +10279,7 @@ function identity(value) {
 module.exports = identity;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/node_modules/lodash-compat/utility/identity.js","/../../node_modules/algoliasearch/node_modules/lodash-compat/utility")
-},{"buffer":203,"oMfpAn":208}],188:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],186:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 module.exports = AlgoliaSearch;
 
@@ -12291,7 +12276,7 @@ function deprecate(fn, message) {
 }
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/src/AlgoliaSearch.js","/../../node_modules/algoliasearch/src")
-},{"./IndexBrowser":189,"./errors":195,"buffer":203,"debug":129,"lodash-compat/collection/forEach":134,"lodash-compat/lang/clone":170,"lodash-compat/lang/isArray":173,"lodash-compat/object/merge":183,"oMfpAn":208}],189:[function(require,module,exports){
+},{"./IndexBrowser":187,"./errors":193,"buffer":201,"debug":127,"lodash-compat/collection/forEach":132,"lodash-compat/lang/clone":168,"lodash-compat/lang/isArray":171,"lodash-compat/object/merge":181,"oMfpAn":206}],187:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 // This is the object returned by the `index.browseAll()` method
 
@@ -12331,7 +12316,7 @@ IndexBrowser.prototype._clean = function() {
 };
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/src/IndexBrowser.js","/../../node_modules/algoliasearch/src")
-},{"buffer":203,"events":206,"inherits":133,"oMfpAn":208}],190:[function(require,module,exports){
+},{"buffer":201,"events":204,"inherits":131,"oMfpAn":206}],188:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 module.exports = JSONPRequest;
 
@@ -12461,7 +12446,7 @@ function JSONPRequest(url, opts, cb) {
 }
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/src/browser/JSONP-request.js","/../../node_modules/algoliasearch/src/browser")
-},{"../errors":195,"buffer":203,"oMfpAn":208}],191:[function(require,module,exports){
+},{"../errors":193,"buffer":201,"oMfpAn":206}],189:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 // This is the AngularJS Algolia Search module
 // It's using $http to do requests with a JSONP fallback
@@ -12634,7 +12619,7 @@ window.angular.module('algoliasearch', [])
   }]);
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/src/browser/builds/algoliasearch.angular.js","/../../node_modules/algoliasearch/src/browser/builds")
-},{"../../AlgoliaSearch":188,"../../errors":195,"../../version.json":196,"../JSONP-request":190,"../get-document-protocol":193,"../inline-headers":194,"./algoliasearch":192,"buffer":203,"debug":129,"inherits":133,"lodash-compat/lang/cloneDeep":171,"oMfpAn":208}],192:[function(require,module,exports){
+},{"../../AlgoliaSearch":186,"../../errors":193,"../../version.json":194,"../JSONP-request":188,"../get-document-protocol":191,"../inline-headers":192,"./algoliasearch":190,"buffer":201,"debug":127,"inherits":131,"lodash-compat/lang/cloneDeep":169,"oMfpAn":206}],190:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 // This is the standalone browser build entry point
 // Browser implementation of the Algolia Search JavaScript client,
@@ -12840,7 +12825,7 @@ AlgoliaSearchBrowser.prototype._promise = {
 };
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/src/browser/builds/algoliasearch.js","/../../node_modules/algoliasearch/src/browser/builds")
-},{"../../AlgoliaSearch":188,"../../errors":195,"../../version.json":196,"../JSONP-request":190,"../get-document-protocol":193,"../inline-headers":194,"buffer":203,"debug":129,"es6-promise":132,"inherits":133,"lodash-compat/lang/cloneDeep":171,"oMfpAn":208}],193:[function(require,module,exports){
+},{"../../AlgoliaSearch":186,"../../errors":193,"../../version.json":194,"../JSONP-request":188,"../get-document-protocol":191,"../inline-headers":192,"buffer":201,"debug":127,"es6-promise":130,"inherits":131,"lodash-compat/lang/cloneDeep":169,"oMfpAn":206}],191:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 module.exports = getDocumentProtocol;
 
@@ -12856,7 +12841,7 @@ function getDocumentProtocol() {
 }
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/src/browser/get-document-protocol.js","/../../node_modules/algoliasearch/src/browser")
-},{"buffer":203,"oMfpAn":208}],194:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],192:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 module.exports = inlineHeaders;
 
@@ -12873,7 +12858,7 @@ function inlineHeaders(url, headers) {
 }
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/src/browser/inline-headers.js","/../../node_modules/algoliasearch/src/browser")
-},{"buffer":203,"oMfpAn":208,"querystring":211}],195:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206,"querystring":209}],193:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 // This file hosts our error definitions
 // We use custom error "types" so that we can act on them when we need it
@@ -12953,9 +12938,9 @@ module.exports = {
 };
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/algoliasearch/src/errors.js","/../../node_modules/algoliasearch/src")
-},{"buffer":203,"inherits":133,"lodash-compat/collection/forEach":134,"oMfpAn":208}],196:[function(require,module,exports){
+},{"buffer":201,"inherits":131,"lodash-compat/collection/forEach":132,"oMfpAn":206}],194:[function(require,module,exports){
 module.exports="3.6.3"
-},{}],197:[function(require,module,exports){
+},{}],195:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /* angular-moment.js / v0.10.1 / (c) 2013, 2014, 2015 Uri Shaked / MIT Licence */
 
@@ -13522,7 +13507,7 @@ module.exports="3.6.3"
 })();
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/angular-moment/angular-moment.js","/../../node_modules/angular-moment")
-},{"buffer":203,"moment":198,"oMfpAn":208}],198:[function(require,module,exports){
+},{"buffer":201,"moment":196,"oMfpAn":206}],196:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 //! moment.js
 //! version : 2.10.3
@@ -16636,7 +16621,7 @@ module.exports="3.6.3"
 
 }));
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/angular-moment/node_modules/moment/moment.js","/../../node_modules/angular-moment/node_modules/moment")
-},{"buffer":203,"oMfpAn":208}],199:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],197:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /**
  * @license AngularJS v1.4.1
@@ -17323,13 +17308,13 @@ angular.module('ngSanitize').filter('linky', ['$sanitize', function($sanitize) {
 })(window, window.angular);
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/angular-sanitize/angular-sanitize.js","/../../node_modules/angular-sanitize")
-},{"buffer":203,"oMfpAn":208}],200:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],198:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 require('./angular-sanitize');
 module.exports = 'ngSanitize';
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/angular-sanitize/index.js","/../../node_modules/angular-sanitize")
-},{"./angular-sanitize":199,"buffer":203,"oMfpAn":208}],201:[function(require,module,exports){
+},{"./angular-sanitize":197,"buffer":201,"oMfpAn":206}],199:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /**
  * @license AngularJS v1.4.1
@@ -45626,13 +45611,13 @@ var minlengthDirective = function() {
 
 !window.angular.$$csp() && window.angular.element(document).find('head').prepend('<style type="text/css">@charset "UTF-8";[ng\\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide:not(.ng-hide-animate){display:none !important;}ng\\:form{display:block;}.ng-animate-shim{visibility:hidden;}.ng-anchor{position:absolute;}</style>');
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/angular/angular.js","/../../node_modules/angular")
-},{"buffer":203,"oMfpAn":208}],202:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],200:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 require('./angular');
 module.exports = angular;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/angular/index.js","/../../node_modules/angular")
-},{"./angular":201,"buffer":203,"oMfpAn":208}],203:[function(require,module,exports){
+},{"./angular":199,"buffer":201,"oMfpAn":206}],201:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /*!
  * The buffer module from node.js, for the browser.
@@ -46745,7 +46730,7 @@ function assert (test, message) {
 }
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/gulp-browserify/node_modules/browserify/node_modules/buffer/index.js","/../../node_modules/gulp-browserify/node_modules/browserify/node_modules/buffer")
-},{"base64-js":204,"buffer":203,"ieee754":205,"oMfpAn":208}],204:[function(require,module,exports){
+},{"base64-js":202,"buffer":201,"ieee754":203,"oMfpAn":206}],202:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 
@@ -46873,7 +46858,7 @@ var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 }(typeof exports === 'undefined' ? (this.base64js = {}) : exports))
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/gulp-browserify/node_modules/browserify/node_modules/buffer/node_modules/base64-js/lib/b64.js","/../../node_modules/gulp-browserify/node_modules/browserify/node_modules/buffer/node_modules/base64-js/lib")
-},{"buffer":203,"oMfpAn":208}],205:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],203:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
   var e, m
@@ -46961,7 +46946,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 }
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/gulp-browserify/node_modules/browserify/node_modules/buffer/node_modules/ieee754/index.js","/../../node_modules/gulp-browserify/node_modules/browserify/node_modules/buffer/node_modules/ieee754")
-},{"buffer":203,"oMfpAn":208}],206:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],204:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -47266,7 +47251,7 @@ function isUndefined(arg) {
 }
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/gulp-browserify/node_modules/browserify/node_modules/events/events.js","/../../node_modules/gulp-browserify/node_modules/browserify/node_modules/events")
-},{"buffer":203,"oMfpAn":208}],207:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],205:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
@@ -47293,7 +47278,7 @@ if (typeof Object.create === 'function') {
 }
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/gulp-browserify/node_modules/browserify/node_modules/inherits/inherits_browser.js","/../../node_modules/gulp-browserify/node_modules/browserify/node_modules/inherits")
-},{"buffer":203,"oMfpAn":208}],208:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],206:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 // shim for using process in browser
 
@@ -47360,7 +47345,7 @@ process.chdir = function (dir) {
 };
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/gulp-browserify/node_modules/browserify/node_modules/process/browser.js","/../../node_modules/gulp-browserify/node_modules/browserify/node_modules/process")
-},{"buffer":203,"oMfpAn":208}],209:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],207:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -47448,7 +47433,7 @@ var isArray = Array.isArray || function (xs) {
 };
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/gulp-browserify/node_modules/browserify/node_modules/querystring-es3/decode.js","/../../node_modules/gulp-browserify/node_modules/browserify/node_modules/querystring-es3")
-},{"buffer":203,"oMfpAn":208}],210:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],208:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -47537,7 +47522,7 @@ var objectKeys = Object.keys || function (obj) {
 };
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/gulp-browserify/node_modules/browserify/node_modules/querystring-es3/encode.js","/../../node_modules/gulp-browserify/node_modules/browserify/node_modules/querystring-es3")
-},{"buffer":203,"oMfpAn":208}],211:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],209:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 'use strict';
 
@@ -47545,7 +47530,7 @@ exports.decode = exports.parse = require('./decode');
 exports.encode = exports.stringify = require('./encode');
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/gulp-browserify/node_modules/browserify/node_modules/querystring-es3/index.js","/../../node_modules/gulp-browserify/node_modules/browserify/node_modules/querystring-es3")
-},{"./decode":209,"./encode":210,"buffer":203,"oMfpAn":208}],212:[function(require,module,exports){
+},{"./decode":207,"./encode":208,"buffer":201,"oMfpAn":206}],210:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 module.exports = function isBuffer(arg) {
   return arg && typeof arg === 'object'
@@ -47554,7 +47539,7 @@ module.exports = function isBuffer(arg) {
     && typeof arg.readUInt8 === 'function';
 }
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/gulp-browserify/node_modules/browserify/node_modules/util/support/isBufferBrowser.js","/../../node_modules/gulp-browserify/node_modules/browserify/node_modules/util/support")
-},{"buffer":203,"oMfpAn":208}],213:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],211:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -48144,7 +48129,7 @@ function hasOwnProperty(obj, prop) {
 }
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/gulp-browserify/node_modules/browserify/node_modules/util/util.js","/../../node_modules/gulp-browserify/node_modules/browserify/node_modules/util")
-},{"./support/isBuffer":212,"buffer":203,"inherits":207,"oMfpAn":208}],214:[function(require,module,exports){
+},{"./support/isBuffer":210,"buffer":201,"inherits":205,"oMfpAn":206}],212:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /**
  * lodash 3.0.3 (Custom Build) <https://lodash.com/>
@@ -48210,7 +48195,7 @@ var forEach = createForEach(arrayEach, baseEach);
 module.exports = forEach;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/lodash.foreach/index.js","/../../node_modules/lodash.foreach")
-},{"buffer":203,"lodash._arrayeach":215,"lodash._baseeach":216,"lodash._bindcallback":220,"lodash.isarray":221,"oMfpAn":208}],215:[function(require,module,exports){
+},{"buffer":201,"lodash._arrayeach":213,"lodash._baseeach":214,"lodash._bindcallback":218,"lodash.isarray":219,"oMfpAn":206}],213:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /**
  * lodash 3.0.0 (Custom Build) <https://lodash.com/>
@@ -48245,7 +48230,7 @@ function arrayEach(array, iteratee) {
 module.exports = arrayEach;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/lodash.foreach/node_modules/lodash._arrayeach/index.js","/../../node_modules/lodash.foreach/node_modules/lodash._arrayeach")
-},{"buffer":203,"oMfpAn":208}],216:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],214:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /**
  * lodash 3.0.4 (Custom Build) <https://lodash.com/>
@@ -48430,7 +48415,7 @@ function isObject(value) {
 module.exports = baseEach;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/lodash.foreach/node_modules/lodash._baseeach/index.js","/../../node_modules/lodash.foreach/node_modules/lodash._baseeach")
-},{"buffer":203,"lodash.keys":217,"oMfpAn":208}],217:[function(require,module,exports){
+},{"buffer":201,"lodash.keys":215,"oMfpAn":206}],215:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /**
  * lodash 3.1.1 (Custom Build) <https://lodash.com/>
@@ -48670,7 +48655,7 @@ function keysIn(object) {
 module.exports = keys;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/lodash.foreach/node_modules/lodash._baseeach/node_modules/lodash.keys/index.js","/../../node_modules/lodash.foreach/node_modules/lodash._baseeach/node_modules/lodash.keys")
-},{"buffer":203,"lodash._getnative":218,"lodash.isarguments":219,"lodash.isarray":221,"oMfpAn":208}],218:[function(require,module,exports){
+},{"buffer":201,"lodash._getnative":216,"lodash.isarguments":217,"lodash.isarray":219,"oMfpAn":206}],216:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /**
  * lodash 3.9.0 (Custom Build) <https://lodash.com/>
@@ -48805,7 +48790,7 @@ function escapeRegExp(string) {
 module.exports = getNative;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/lodash.foreach/node_modules/lodash._baseeach/node_modules/lodash.keys/node_modules/lodash._getnative/index.js","/../../node_modules/lodash.foreach/node_modules/lodash._baseeach/node_modules/lodash.keys/node_modules/lodash._getnative")
-},{"buffer":203,"oMfpAn":208}],219:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],217:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /**
  * lodash 3.0.3 (Custom Build) <https://lodash.com/>
@@ -48917,7 +48902,7 @@ function isArguments(value) {
 module.exports = isArguments;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/lodash.foreach/node_modules/lodash._baseeach/node_modules/lodash.keys/node_modules/lodash.isarguments/index.js","/../../node_modules/lodash.foreach/node_modules/lodash._baseeach/node_modules/lodash.keys/node_modules/lodash.isarguments")
-},{"buffer":203,"oMfpAn":208}],220:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],218:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /**
  * lodash 3.0.1 (Custom Build) <https://lodash.com/>
@@ -48986,7 +48971,7 @@ function identity(value) {
 module.exports = bindCallback;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/lodash.foreach/node_modules/lodash._bindcallback/index.js","/../../node_modules/lodash.foreach/node_modules/lodash._bindcallback")
-},{"buffer":203,"oMfpAn":208}],221:[function(require,module,exports){
+},{"buffer":201,"oMfpAn":206}],219:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /**
  * lodash 3.0.3 (Custom Build) <https://lodash.com/>
@@ -49164,4 +49149,4 @@ function escapeRegExp(string) {
 module.exports = isArray;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/lodash.foreach/node_modules/lodash.isarray/index.js","/../../node_modules/lodash.foreach/node_modules/lodash.isarray")
-},{"buffer":203,"oMfpAn":208}]},{},[3])
+},{"buffer":201,"oMfpAn":206}]},{},[3])
