@@ -8,8 +8,7 @@ var forEach = require('lodash.foreach');
 var SearchCtrl = function($scope, $sce, $timeout, $location, algolia) {
   $scope.client = algolia.Client('latency', 'db2af085e1f7dc80f93178182b76ddca');
   $scope.helper = algoliasearchHelper($scope.client, 'magento-connect', {
-    facets: ['price_range'],
-    disjunctiveFacets: ['rating_i'],
+    disjunctiveFacets: ['price_range', 'rating_i'],
     maxValuesPerFacet: 10
   });
   $scope.q = $location.search().q || '';
@@ -50,7 +49,7 @@ var SearchCtrl = function($scope, $sce, $timeout, $location, algolia) {
   };
 
   $scope.helper.on('result', function(content) {
-    // rating facet
+    // rating & price range facets
     content.ratingFacet = {
       1: 0,
       2: 0,
@@ -58,6 +57,7 @@ var SearchCtrl = function($scope, $sce, $timeout, $location, algolia) {
       4: 0,
       5: 0
     };
+    content.priceRangeFacet = [];
     forEach(content.disjunctiveFacets, function(facet) {
       if (facet.name === 'rating_i') {
         forEach(facet.data, function(count, value) {
@@ -76,13 +76,7 @@ var SearchCtrl = function($scope, $sce, $timeout, $location, algolia) {
             content.ratingFacet[5] += count;
           }
         });
-      }
-    });
-
-    // price range facet
-    content.priceRangeFacet = [];
-    forEach(content.facets, function(facet) {
-      if (facet.name === 'price_range') {
+      } else if (facet.name === 'price_range') {
         forEach(facet.data, function(count, value) {
           content.priceRangeFacet.push({ label: value, count: count });
         });
@@ -191,7 +185,7 @@ app.controller('SearchCtrl', ['$scope', '$sce', '$timeout', '$location', 'algoli
 
 app.directive('scrolled', ['$window', '$document', scrolled]);
 
-}).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/fake_5220c2d8.js","/")
+}).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/fake_771e11e5.js","/")
 },{"./controllers/SearchCtrl":1,"./directives/scrolled":2,"algoliasearch/src/browser/builds/algoliasearch.angular":189,"angular":200,"angular-moment":195,"angular-sanitize":198,"buffer":201,"oMfpAn":206}],4:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 "use strict";
