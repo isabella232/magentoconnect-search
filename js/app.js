@@ -191,7 +191,7 @@ app.controller('SearchCtrl', ['$scope', '$sce', '$timeout', '$location', 'algoli
 
 app.directive('scrolled', ['$window', '$document', scrolled]);
 
-}).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/fake_a4420a26.js","/")
+}).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/fake_26ac0d5.js","/")
 },{"./controllers/SearchCtrl":1,"./directives/scrolled":2,"algoliasearch/src/browser/builds/algoliasearch.angular":189,"angular":200,"angular-moment":195,"angular-sanitize":198,"buffer":201,"oMfpAn":206}],4:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 "use strict";

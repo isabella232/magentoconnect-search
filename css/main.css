@@ -7663,18 +7663,16 @@ header {
     background-color: white; } }
 
 .extensions {
-  margin-top: 3em;
-  opacity: 1;
-  transition: opacity 0.05s ease-in-out;
-  -moz-transition: opacity 0.05s ease-in-out;
-  -webkit-transition: opacity 0.05s ease-in-out; }
+  margin-top: 3em; }
   .extensions .star {
     color: #E7B900; }
-  .extensions.blur {
-    opacity: 0.5; }
   .extensions .extension-card {
     margin-bottom: 2em;
-    background: white; }
+    background: white;
+    opacity: 1;
+    transition: opacity 0.05s ease-in-out;
+    -moz-transition: opacity 0.05s ease-in-out;
+    -webkit-transition: opacity 0.05s ease-in-out; }
     .extensions .extension-card.highlighted {
       -webkit-animation: highlight 2s 1;
       -moz-animation: highlight 2s 1; }
@@ -7716,6 +7714,8 @@ header {
       font-size: 0.8em; }
       .extensions .extension-card .extension-tags .extension-tag em {
         text-decoration: underline; }
+  .extensions.blur .extension-card {
+    opacity: 0.5; }
   .extensions .facets .facet-value {
     display: block;
     border-bottom: 1px dotted #ccc;
