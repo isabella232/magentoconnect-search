@@ -97,7 +97,7 @@ html(lang="en" ng-app="myApp")
         .col-md-10.no-results(ng-if="content.nbHits === 0")
           | No results are matching "<strong>{{ q }}</strong>".
 
-        .col-md-5.col-sm-8(ng-repeat="odd in ::[true, false]" ng-class="{ 'hidden-xs hidden-sm' : !odd }")
+        .col-md-5.col-sm-8.hits(ng-repeat="odd in ::[true, false]" ng-class="{ 'hidden-xs hidden-sm' : !odd }")
           .extension-card(ng-repeat="hit in content.hits track by hit.objectID" ng-class="{ 'hidden-md hidden-lg' : ($odd == odd), 'highlighted' : hit.concatenated }")
             .media.extension-card-top
               .media-left.extension-icon
