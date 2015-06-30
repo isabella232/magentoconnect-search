@@ -89,17 +89,15 @@ header
 
 .extensions
   margin-top: 3em
-  opacity: 1;
-  transition: opacity .05s ease-in-out;
-  -moz-transition: opacity .05s ease-in-out;
-  -webkit-transition: opacity .05s ease-in-out;
   .star
     color: #E7B900
-  &.blur
-    opacity: 0.5
   .extension-card
     margin-bottom: 2em
     background: white
+    opacity: 1;
+    transition: opacity .05s ease-in-out;
+    -moz-transition: opacity .05s ease-in-out;
+    -webkit-transition: opacity .05s ease-in-out;
     &.highlighted
       -webkit-animation: highlight 2s 1
       -moz-animation: highlight 2s 1
@@ -143,6 +141,9 @@ header
         font-size: 0.8em
         em
           text-decoration: underline
+  &.blur
+    .extension-card
+      opacity: 0.5
 
   .facets
     .facet-value

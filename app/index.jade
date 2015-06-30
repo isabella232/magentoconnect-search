@@ -61,7 +61,7 @@ html(lang="en" ng-app="myApp")
               img(src="images/logo-algolia.png")
 
         .col-md-2.col-sm-4.facets.hidden-xs
-          .facet
+          .facet(ng-if="content.nbHits")
             h3 Price
             ul.list-unstyled
               li(ng-repeat="value in content.priceRangeFacet" ng-class="{ refined: (helper.isRefined('price_range', value)) }")
@@ -78,29 +78,25 @@ html(lang="en" ng-app="myApp")
                     | &nbsp;
                 td.facet-count {{ count | number }}
 
-        .col-md-5.col-md-offset-2.col-sm-8(ng-if="content.promoted || content.nbHits === 0")
-          .extension-card.highlighted
+          .extension-card.highlighted(ng-if="content.promoted || content.nbHits === 0")
             .media.extension-card-top
-              .media-left.extension-icon
+              .extension-icon
                 a(href="http://www.magentocommerce.com/magento-connect/search-algolia-instant-search.html" target="_blank")
                   .extension-logo.media-object(style="background: #efefef url(http://www.magentocommerce.com/magento-connect/media/catalog/product/cache/9/small_image/125x/9df78eab33525d08d6e5fb8d27136e95/s/c/screen-shot-2015-05-06-at-15.47.56_1.png) top left no-repeat")
                 .extension-ratings
-              .media-body
-                .extension-price.label.label-success Free
-                h4.extension-name
-                  a(href="http://www.magentocommerce.com/magento-connect/search-algolia-instant-search.html" target="_blank") Algolia Instant Search
-                p.extension-desccription As-You-Type Auto-Completion Menu and Instant Search Results Page, all Customizable &amp; Open-Source.
+              p.extension-description.text-center As-You-Type Auto-Completion Menu and Instant Search Results Page, all Customizable &amp; Open-Source.
             .extension-card-bottom
               .extension-downloaded.text-center
                 a.btn.btn-info(href="http://www.magentocommerce.com/magento-connect/search-algolia-instant-search.html" target="_blank")
                   i.fa.fa-download(title="Popularity")
                   |  Install now
-                | #{' '}
+                br
+                br
                 a.btn.btn-default(href="https://github.com/algolia/algoliasearch-magento" target="_blank")
                   i.fa.fa-github(title="Fork me")
-                  |  Fork me on GitHub
+                  |  Fork
 
-        .col-lg-12.no-results(ng-if="content.nbHits === 0")
+        .col-md-10.no-results(ng-if="content.nbHits === 0")
           | No results are matching "<strong>{{ q }}</strong>".
 
         .col-md-5.col-sm-8(ng-repeat="odd in ::[true, false]" ng-class="{ 'hidden-xs hidden-sm' : !odd }")
