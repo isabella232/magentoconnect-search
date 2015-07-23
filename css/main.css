@@ -7714,7 +7714,7 @@ header {
       font-size: 0.8em; }
       .extensions .extension-card .extension-tags .extension-tag em {
         text-decoration: underline; }
-  .extensions.blur .extension-card {
+  .extensions.blur .hits .extension-card {
     opacity: 0.5; }
   .extensions .facets .facet-value {
     display: block;
