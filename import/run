@@ -27,15 +27,17 @@ objects = []
       '> $100'
     end
     rating = (ext / 'li.rating img').attr('alt').to_s.to_f rescue 0.0
+    popularity = (ext / 'li.downloads a').text.strip.to_i
     obj = {
       title: (ext / '.featured-extension-title').text.strip,
       link: (ext / '.featured-extension-title a').attr('href').to_s,
       thumbnail_url: (ext / 'img.featured-extension-icon').attr('src').to_s,
-      popularity: (ext / 'li.downloads a').text.strip.to_i,
+      popularity: popularity,
       rating: rating,
       rating_i: rating.round,
       price: price,
       price_range: price_range,
+      score: (5 * 1.79 + (popularity * rating)) / (5 + popularity).round(2),
       short_description: (ext / '.featured-extension-description').text.strip
     }
     objects << obj
@@ -48,7 +50,7 @@ index = Algolia::Index.new('magento-connect')
 index.clear
 index.set_settings({
   attributesToIndex: ['unordered(title)', 'unordered(short_description)'],
-  customRanking: ['desc(popularity)', 'desc(rating)'],
+  customRanking: ['desc(score)', 'desc(popularity)'],
   attributesForFaceting: ['price_range', 'rating_i']
 })
 index.add_objects objects
