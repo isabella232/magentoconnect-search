@@ -37,7 +37,7 @@ objects = []
       rating_i: rating.round,
       price: price,
       price_range: price_range,
-      score: (5 * 1.79 + (popularity * rating)) / (5 + popularity).round(2),
+      score: popularity / 2000, # popularity buckets
       short_description: (ext / '.featured-extension-description').text.strip
     }
     objects << obj
@@ -50,7 +50,7 @@ index = Algolia::Index.new('magento-connect')
 index.clear
 index.set_settings({
   attributesToIndex: ['unordered(title)', 'unordered(short_description)'],
-  customRanking: ['desc(score)', 'desc(popularity)'],
+  customRanking: ['desc(score)', 'desc(rating)'],
   attributesForFaceting: ['price_range', 'rating_i']
 })
 index.add_objects objects
